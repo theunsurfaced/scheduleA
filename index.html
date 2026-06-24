@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unsurfaced™ — Rights & Catalog Administration</title>
+<meta name="description" content="The Unsurfaced™ rights platform. Catalogs, surfaced — works, writers, splits, recordings, and registrations. A work is not a recording." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#000; --panel:#0b0b0c; --panel2:#121214; --line:#1d1d20; --line2:#2c2c31;
+  --ink:#fff; --mut:#8a8a92; --mut2:#56565d;
+  --red:#ff2e2e; --red-deep:#b81616; --red-soft:rgba(255,46,46,.12);
+  --amber:#f5b021; --amber-soft:rgba(245,176,33,.13);
+  --maxw:1180px;
+  --serif:"DM Serif Display",Georgia,serif; --sans:"Syne",system-ui,sans-serif; --mono:"Space Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
+[data-go],[data-scroll]{cursor:pointer}
+.mono{font-family:var(--mono)} .tnum{font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.hide{display:none!important}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:flex-end;justify-content:space-between;min-height:62px;gap:16px;padding-top:12px;padding-bottom:13px}
+.brand{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.brandmark{height:20px;width:auto;display:block}
+.brand b{font-weight:800;letter-spacing:.2em;font-size:14px} .brand .tm{font-size:9px;color:var(--red);transform:translateY(-4px)}
+.brand small{color:var(--mut);font-size:10px;letter-spacing:.22em;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:2px;flex-wrap:wrap;justify-content:flex-end}
+.nav-links a{padding:8px 12px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);border-radius:3px;white-space:nowrap}
+.nav-links a:hover{color:var(--ink)} .nav-links a.on{color:var(--ink);background:var(--panel2)}
+.nav-back{color:var(--mut);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px}
+.nav-back:hover{color:var(--ink)}
+.catbadge{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);border-left:1px solid var(--line2);padding-left:14px}
+.catbadge i{color:var(--red);font-style:normal}
+.modepill{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding:5px 10px;border:1px solid var(--line2);border-radius:999px}
+.modepill .dot{width:6px;height:6px;border-radius:999px;background:var(--mut2)}
+.modepill.live{color:var(--amber);border-color:var(--amber)} .modepill.live .dot{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.btn{font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:8px 13px;border-radius:3px;border:1px solid var(--line2);background:transparent;color:var(--ink)}
+.btn:hover{border-color:var(--ink)} .btn:disabled{opacity:.4;cursor:default}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff;font-weight:700} .btn.red:hover{background:var(--red-deep);border-color:var(--red-deep)}
+.btn.sm{padding:6px 11px}
+
+/* ticker */
+.ticker{border-bottom:1px solid var(--line);background:var(--panel);overflow:hidden}
+.ticker-track{display:inline-flex;gap:46px;white-space:nowrap;padding:9px 0;animation:tick 40s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker span{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mut)}
+.ticker b{color:var(--ink)} .ticker i{color:var(--red);font-style:normal}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* hero */
+.hero{border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 88% -10%,rgba(255,46,46,.14),transparent 60%);pointer-events:none}
+.hero-in{padding:60px 0 48px;position:relative}
+.eyebrow{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--mut)} .eyebrow i{color:var(--red);font-style:normal}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,8.5vw,98px);line-height:.92;margin:14px 0 0 -0.05em;letter-spacing:-.01em}
+.hero h1 em{font-style:italic;color:var(--red)}
+.hero p{max-width:560px;margin:18px 0 0;color:var(--mut);font-size:15px;line-height:1.6} .hero p b{color:var(--ink);font-weight:600}
+
+/* sections / cards */
+.section{padding:40px 0}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.sec-head h2{font-family:var(--serif);font-weight:400;font-size:30px;margin:0}
+.sec-head .lead{color:var(--mut);font-size:13px;margin-top:6px;max-width:560px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:2fr 1fr}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px;transition:border-color .15s}
+a.tile:hover{border-color:var(--line2)}
+.tile .k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.tile .v{font-family:var(--serif);font-size:42px;line-height:1;margin-top:12px} .tile .v.red{color:var(--red)} .tile .v.amber{color:var(--amber)}
+.tile .h{margin-top:7px;font-size:11px;color:var(--mut2)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.panel-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.panel-h h3{font-family:var(--serif);font-weight:400;font-size:20px;margin:0}
+
+/* hub catalog cards */
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.cat-card{position:relative;display:block;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:24px;transition:border-color .15s,transform .15s;overflow:hidden}
+.cat-card:hover{border-color:var(--line2);transform:translateY(-2px)}
+.cat-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+.cat-card .ctop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.cat-card h3{font-family:var(--serif);font-weight:400;font-size:30px;line-height:1.04;margin:0}
+.cat-card .owner{color:var(--mut);font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+.cat-stats{display:flex;gap:26px;margin-top:22px}
+.cat-stats .s .n{font-family:var(--mono);font-size:24px} .cat-stats .s .l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-top:3px}
+.cat-stats .s .n.amber{color:var(--amber)} .cat-stats .s .n.red{color:var(--red)}
+.cat-enter{margin-top:20px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
+.cat-add{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px dashed var(--line2);border-radius:8px;padding:24px;min-height:200px;color:var(--mut);background:transparent;transition:border-color .15s,color .15s}
+.cat-add:hover{border-color:var(--red);color:var(--ink)}
+.cat-add .plus{font-family:var(--serif);font-size:40px;line-height:1;color:var(--red)}
+.cat-del{position:absolute;top:14px;right:16px;color:var(--mut2);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:none;border:0;opacity:0;transition:opacity .15s}
+.cat-card:hover .cat-del{opacity:1} .cat-del:hover{color:var(--red)}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:500;padding:11px 16px;border-bottom:1px solid var(--line)}
+tbody td{padding:13px 16px;border-bottom:1px solid var(--line)} tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--panel2)}
+.t-title{font-weight:600} .t-title:hover{color:var(--red)} .muted{color:var(--mut)}
+tfoot td{padding:12px 16px;border-top:1px solid var(--line2);font-weight:700}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line2);color:var(--mut);white-space:nowrap}
+.pill.amber{color:var(--amber);border-color:var(--amber);background:var(--amber-soft)}
+.pill.red{color:var(--red);border-color:var(--red);background:var(--red-soft)}
+.pill.ink{color:var(--ink);border-color:var(--line2)} .pill.solid{background:var(--red);border-color:var(--red);color:#fff}
+.pill.gold{background:var(--amber);border-color:var(--amber);color:#1a1205;font-weight:700}
+
+/* split meter (signature) */
+.meter{width:170px}
+.meter-bar{position:relative;height:7px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden}
+.meter-total{position:absolute;inset:0 auto 0 0;background:var(--red-soft)} .meter-ctl{position:absolute;inset:0 auto 0 0;background:var(--red)}
+.meter-bar.over .meter-total{background:var(--amber-soft)}
+.meter-tick{position:absolute;top:0;bottom:0;width:1px;background:var(--line2);left:100%}
+.meter-cap{display:flex;justify-content:space-between;margin-top:5px;font-family:var(--mono);font-size:10px;color:var(--mut)} .meter-cap .o{color:var(--amber)} .meter-cap .s{color:var(--red)}
+
+/* detail */
+.crumbs{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)} .crumbs a:hover{color:var(--ink)}
+.det-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin:10px 0 22px;flex-wrap:wrap}
+.det-head h1{font-family:var(--serif);font-weight:400;font-size:clamp(28px,5vw,50px);line-height:1;margin:0}
+.det-head .sub{margin-top:10px;color:var(--mut);font-size:13px} .det-head .sub .mono{color:var(--ink)}
+.tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:22px}
+.tabs a,.tabs span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut2);padding:10px 12px;border-bottom:2px solid transparent}
+.tabs a{color:var(--mut);cursor:pointer} .tabs a:hover{color:var(--ink)} .tabs a.on{color:var(--ink);border-color:var(--red)}
+.tabs span.soon{opacity:.35;cursor:default}
+.flags{display:flex;flex-direction:column;gap:6px} .flag{font-size:13px;display:flex;gap:9px;align-items:baseline} .flag .b{font-family:var(--mono);font-size:11px}
+.flag.warn .b{color:var(--amber)} .flag.error .b{color:var(--red)} .flag.info .b{color:var(--mut)}
+
+/* import + forms */
+.drop{border:1px dashed var(--line2);border-radius:8px;padding:38px;text-align:center;background:var(--panel)} .drop.warm{border-color:var(--red)}
+.drop h3{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 6px}
+.file-in{margin-top:16px;font-size:13px}
+.toast{margin-top:14px;padding:11px 14px;border-radius:5px;font-size:13px}
+.toast.ok{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber)} .toast.err{background:var(--red-soft);color:var(--red);border:1px solid var(--red)}
+.field{margin-bottom:16px} .field label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:7px}
+.field input,.field select{width:100%;background:#000;border:1px solid var(--line2);border-radius:4px;color:var(--ink);padding:11px 12px;font-family:var(--sans);font-size:14px}
+.field input:focus,.field select:focus{border-color:var(--red);outline:none}
+.field input.mono{font-family:var(--mono)}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px} .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.check{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--mut)} .check input{width:auto}
+
+/* empty */
+.empty{border:1px dashed var(--line2);border-radius:8px;padding:50px 30px;text-align:center;background:var(--panel)}
+.empty h3{font-family:var(--serif);font-weight:400;font-size:24px;margin:0 0 8px}
+.empty p{color:var(--mut);font-size:14px;max-width:440px;margin:0 auto 20px;line-height:1.6}
+.empty .acts{display:flex;gap:10px;justify-content:center}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);padding:24px}
+.modal.show{display:flex}
+.modal-box{width:100%;max-width:460px;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:30px;position:relative}
+.modal-box .logo{font-weight:800;letter-spacing:.16em;font-size:13px} .modal-box .byl{color:var(--mut);font-size:11px;margin-top:4px}
+.modal-box h2{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.1;margin:18px 0 10px}
+.modal-box p{color:var(--mut);font-size:13px;line-height:1.6;margin:0 0 16px}
+.notice{display:flex;gap:9px;margin-top:16px;font-size:11px;color:var(--mut);line-height:1.5}
+.x{position:absolute;top:16px;right:20px;color:var(--mut);font-size:22px;background:none;border:0}
+
+.foot{border-top:1px solid var(--line);padding:30px 0;color:var(--mut2);font-size:11px;letter-spacing:.04em}
+
+@media(max-width:860px){
+  .g4{grid-template-columns:repeat(2,1fr)} .g3,.g2,.cat-grid,.row3,.row2{grid-template-columns:1fr}
+  .nav-links a{padding:8px 8px} .modepill{display:none} .scrollx{overflow-x:auto} .meter{width:120px} .brandmark{height:17px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="nav"><div class="wrap nav-in" id="navIn"></div></header>
+<div class="ticker"><div class="ticker-track" id="ticker"></div></div>
+<main id="view"></main>
+<footer class="foot"><div class="wrap">Unsurfaced™ Rights Platform · A work is not a recording — public metadata is enrichment, not truth.</div></footer>
+
+<!-- ADD CATALOG MODAL -->
+<div class="modal" id="addModal"><div class="modal-box">
+  <button class="x" id="addX" aria-label="Close">×</button>
+  <div class="logo">UNSURFACED<span style="color:var(--red)">™</span></div>
+  <div class="byl">New catalog</div>
+  <h2>Add a catalog</h2>
+  <p>Each catalog is its own isolated workspace — works, writers, splits, recordings, and registrations. Start empty, then import a Schedule A or add compositions by hand.</p>
+  <div class="field"><label>Catalog name</label><input id="newCatName" placeholder="e.g. Skyline Publishing" autocomplete="off"/></div>
+  <div class="field"><label>Owner / entity</label><input id="newCatOwner" placeholder="e.g. Skyline LLC" autocomplete="off"/></div>
+  <div class="toast err hide" id="addErr"></div>
+  <button class="btn red" id="addGo" style="width:100%;margin-top:6px">Create catalog →</button>
+</div></div>
+
+<!-- CONNECT MODAL -->
+<div class="modal" id="connModal"><div class="modal-box">
+  <button class="x" id="connX" aria-label="Close">×</button>
+  <div class="logo">LIVE DATA · SUPABASE</div>
+  <div class="byl">Browser → Supabase, direct. No server in between.</div>
+  <h2>Connect live data</h2>
+  <p>Point the active catalog at your Supabase project. The anon key is public by design — your <b>row-level security</b> policies enforce access. Keys live in <b>sessionStorage</b> and clear when the tab closes.</p>
+  <div class="field"><label>Supabase URL</label><input class="mono" id="supaUrl" placeholder="https://YOUR-PROJECT.supabase.co" autocomplete="off" spellcheck="false"/></div>
+  <div class="field"><label>Anon key</label><input class="mono" id="supaKey" type="password" placeholder="eyJhbGci…" autocomplete="off" spellcheck="false"/></div>
+  <div class="toast err hide" id="connErr"></div>
+  <div style="display:flex;gap:10px;margin-top:6px">
+    <button class="btn red" id="connGo" style="flex:1">Activate live →</button>
+    <button class="btn" id="connOff">Use demo</button>
+  </div>
+  <div class="notice"><span style="color:var(--amber)">🔒</span><span>Calls go directly from your browser to your Supabase REST endpoint. Nothing is stored or proxied by this page.</span></div>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script>
+/* ============================================================
+   UNSURFACED™ Rights Platform — single-file client app
+   Hub of catalogs. Each catalog: isolated, persisted, functional.
+   Demo: localStorage. Live: browser → Supabase (RLS-gated).
+   ============================================================ */
+const RGMG_WORKS = [{"id":"w1","title":"CATCH A STRAY","artist":"Leon Thomas","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2025-05-30","notes":null,"pubTotal":0.175,"masterTotal":0.0583,"controlledPub":0.175,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.175,"mas":0.0583,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w2","title":"DIRT ON MY SHOES","artist":"Leon Thomas, Kehlani","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2025-05-30","notes":null,"pubTotal":0.075,"masterTotal":0.025,"controlledPub":0.075,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.075,"mas":0.025,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"needs_info","d":"2025-08-29"},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w3","title":"FIRE","artist":"SiR","status":"submitted","unreleased":false,"label":"Top Dawg Entertainment","releaseDate":"2019-08-30","notes":null,"pubTotal":0.1667,"masterTotal":0.05,"controlledPub":0.1667,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.1667,"mas":0.05,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"needs_info","d":"2025-08-29"},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w4","title":"HEEL","artist":"Leon Thomas","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2025-05-30","notes":null,"pubTotal":0.2,"masterTotal":0.0833,"controlledPub":0.2,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.2,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"needs_info","d":"2025-08-29"},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w5","title":"I DO","artist":"Leon Thomas","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2024-09-27","notes":null,"pubTotal":0.25,"masterTotal":0.0833,"controlledPub":0.25,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.25,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"needs_info","d":"2025-08-29"},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w6","title":"I USED TO (FEAT. BABY ROSE)","artist":"Leon Thomas, Baby Rose","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2024-09-27","notes":null,"pubTotal":0.25,"masterTotal":0.0416,"controlledPub":0.25,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.25,"mas":0.0416,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w7","title":"LA","artist":"SiR","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2019-08-30","notes":"*Not registering until sample sorted","pubTotal":0.125,"masterTotal":0.0375,"controlledPub":0.125,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.125,"mas":0.0375,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w8","title":"LUCID DREAMS","artist":"Leon Thomas, Masego","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2024-09-27","notes":null,"pubTotal":0.2,"masterTotal":0.0833,"controlledPub":0.2,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.2,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"needs_info","d":"2025-08-29"},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w9","title":"MUTT* share updated","artist":"Leon Thomas","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2024-08-08","notes":"New share needs delivery to sub-pubs, PRS, CMRRA, and SACEM","pubTotal":0.15,"masterTotal":0.0833,"controlledPub":0.15,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.15,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"accepted","d":"2025-10-08"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"},{"s":"SoundExchange","st":"submitted","d":null}]},{"id":"w10","title":"NOT FAIR","artist":"Leon Thomas","status":"submitted","unreleased":false,"label":"SMP","releaseDate":"2025-05-30","notes":null,"pubTotal":0.2,"masterTotal":0.0833,"controlledPub":0.2,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.2,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w11","title":"PRIZE","artist":"Leon Thomas","status":"submitted","unreleased":false,"label":"SMP","releaseDate":"2025-05-30","notes":null,"pubTotal":0.125,"masterTotal":0.0416,"controlledPub":0.125,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.125,"mas":0.0416,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"needs_info","d":"2025-08-29"},{"s":"HFA/MLC","st":"submitted","d":"2025-08-29"},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w12","title":"RATHER BE ALONE","artist":"Leon Thomas, Halle Bailey","status":"submitted","unreleased":false,"label":"SMP","releaseDate":"2025-04-18","notes":null,"pubTotal":0.175,"masterTotal":0.0833,"controlledPub":0.175,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.175,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"submitted","d":null},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w13","title":"SHIRT","artist":"SZA","status":"submitted","unreleased":false,"label":"SMP","releaseDate":"2022-10-08","notes":null,"pubTotal":0.2,"masterTotal":0.02,"controlledPub":0.2,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.2,"mas":0.02,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"submitted","d":null},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w14","title":"SILLY LOVE SONG* relinquish","artist":"Sample; Skytower Productions","status":"submitted","unreleased":false,"label":"N/A","releaseDate":null,"notes":"Confirm we are no longer claiming","pubTotal":0,"masterTotal":0,"controlledPub":0,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":null,"mas":null,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w15","title":"UNTIL THE END OF TIME","artist":"Leon Thomas, Coco Jones","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2023-02-14","notes":null,"pubTotal":0.1667,"masterTotal":0.0588,"controlledPub":0.1667,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.1667,"mas":0.0588,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"needs_info","d":"2025-08-29"},{"s":"HFA/MLC","st":"submitted","d":null},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w16","title":"INTERLUDE 2","artist":"Halle, Rylan (Robert Gueringer IPI# ","status":"submitted","unreleased":true,"label":null,"releaseDate":null,"notes":null,"pubTotal":0.25,"masterTotal":0,"controlledPub":0.25,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"submitted","d":null},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w17","title":"WORTHY","artist":"Megan Thee Stallion","status":"submitted","unreleased":false,"label":"WMG","releaseDate":"2024-06-28","notes":null,"pubTotal":0.5,"masterTotal":0.2,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":0.2,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"submitted","d":null},{"s":"PRS","st":"needs_info","d":"2025-10-08"},{"s":"CMRRA","st":"needs_info","d":"2025-10-08"},{"s":"YouTube","st":"submitted","d":null},{"s":"SACEM","st":"needs_info","d":"2025-10-08"}]},{"id":"w18","title":"MUTT (CB REMIX)","artist":"Leon Thomas, Chris Brown","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2025-03-21","notes":null,"pubTotal":0.1438,"masterTotal":0.0833,"controlledPub":0.1438,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.1438,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null}]},{"id":"w19","title":"MUTT (FEAT. FREDDIE GIBBS) [REMIX]","artist":"Leon Thomas, Freddie Gibbs","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2024-08-30","notes":null,"pubTotal":0.15,"masterTotal":0.0833,"controlledPub":0.15,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.15,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null},{"s":"HFA/MLC","st":"accepted","d":"2025-10-10"}]},{"id":"w20","title":"MUTT REMIX","artist":"Leon Thomas","status":"submitted","unreleased":true,"label":"UMG","releaseDate":null,"notes":null,"pubTotal":0.15,"masterTotal":0.0833,"controlledPub":0.15,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.15,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"submitted","d":null}]},{"id":"w21","title":"MAYBE","artist":"Jozzy","status":"submitted","unreleased":false,"label":"BMG","releaseDate":"2025-02-28","notes":null,"pubTotal":0.25,"masterTotal":0.1,"controlledPub":0.25,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.25,"mas":0.1,"pro":null,"ipi":null,"ctl":true}],"regs":[]},{"id":"w22","title":"JUST HOW YOU ARE","artist":"Leon Thomas","status":"submitted","unreleased":false,"label":"UMG","releaseDate":"2025-10-02","notes":null,"pubTotal":0.2,"masterTotal":0.111,"controlledPub":0.2,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.2,"mas":0.111,"pro":null,"ipi":null,"ctl":true}],"regs":[]},{"id":"w23","title":"PARADISE","artist":"Party Favor","status":"submitted","unreleased":false,"label":null,"releaseDate":"2023-12-08","notes":null,"pubTotal":0.05,"masterTotal":0,"controlledPub":0.05,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.05,"mas":null,"pro":null,"ipi":null,"ctl":true}],"regs":[{"s":"ASCAP","st":"conflict","d":null},{"s":"HFA/MLC","st":"submitted","d":null}]},{"id":"w24","title":"TESTIMONY","artist":"Whitney Houston","status":"confirmed","unreleased":false,"label":"Sony","releaseDate":"2023-03-24","notes":null,"pubTotal":1,"masterTotal":0.0556,"controlledPub":0,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":null,"mas":0.0556,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Whitney Houston","pn":null,"pub":1,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"David Kenneth Phelps","pn":"D. Phelps","pub":null,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w25","title":"HE CAN USE ME","artist":"Whitney Houston","status":"confirmed","unreleased":false,"label":"Sony","releaseDate":"2023-03-24","notes":null,"pubTotal":1,"masterTotal":0.0556,"controlledPub":0,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":null,"mas":0.0556,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Whitney Houston","pn":null,"pub":1,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"David Kenneth Phelps","pn":"D. Phelps","pub":null,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w26","title":"SANTA MONICA BAR","artist":"Jozzy","status":"confirmed","unreleased":true,"label":null,"releaseDate":null,"notes":null,"pubTotal":0.95,"masterTotal":0.1,"controlledPub":0.25,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.25,"mas":0.1,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Jocelyn Donald","pn":null,"pub":0.4,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"BongoByTheWay","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Fabian Johson","pn":null,"pub":0.05,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w27","title":"BACCARAT","artist":"Leon Thomas","status":"confirmed","unreleased":true,"label":"UMG","releaseDate":"2025-10-24","notes":null,"pubTotal":1,"masterTotal":0.1944,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":0.1944,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Leon Thomas III","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Lazaro Camejo","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w28","title":"5 MORE MINUTES","artist":"Leon Thomas","status":"confirmed","unreleased":true,"label":"UMG","releaseDate":"2025-10-24","notes":null,"pubTotal":1,"masterTotal":0.1944,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":0.1944,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Leon Thomas III","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Lazaro Camejo","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w29","title":"FEEL ALIVE","artist":"Leon Thomas","status":"confirmed","unreleased":true,"label":"UMG","releaseDate":"2025-10-24","notes":null,"pubTotal":1,"masterTotal":0.1944,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":0.1944,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Leon Thomas III","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Lazaro Camejo","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w30","title":"MY MUSE","artist":"Leon Thomas","status":"confirmed","unreleased":true,"label":"UMG","releaseDate":"2025-10-24","notes":null,"pubTotal":1,"masterTotal":0.0833,"controlledPub":0.1333,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.1333,"mas":0.0833,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Leon Thomas III","pn":null,"pub":0.2501,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Lazaro Camejo","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"David Kenneth Phelps","pn":"D. Phelps","pub":0.1333,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Peter Lee Johnson","pn":null,"pub":0.05,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"March Clayton Paul p/k/a Marcus Paul:","pn":null,"pub":0.05,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Nile Eugene Hargrove p/k/a Nile","pn":null,"pub":0.1333,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w31","title":"LONE WOLF","artist":"Leon Thomas","status":"confirmed","unreleased":true,"label":"UMG","releaseDate":"2025-10-24","notes":null,"pubTotal":1,"masterTotal":0.1111,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":0.1111,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Leon Thomas III","pn":null,"pub":0.1667,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Lazaro Camejo","pn":null,"pub":0.1666,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"David Kenneth Phelps","pn":"D. Phelps","pub":null,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Niko Bennet","pn":null,"pub":0.1667,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w32","title":"TRAPPED","artist":"Leon Thomas","status":"confirmed","unreleased":true,"label":"UMG","releaseDate":"2025-10-24","notes":null,"pubTotal":1,"masterTotal":0.0833,"controlledPub":0.2,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.2,"mas":0.0833,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Leon Thomas III","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Lazaro Camejo","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"David Kenneth Phelps","pn":"D. Phelps","pub":0.2,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Eugene Tsai","pn":null,"pub":0.1,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w33","title":"GUARD YOUR LOVE","artist":"Mamii","status":"under_review","unreleased":false,"label":null,"releaseDate":"2024-11-20","notes":null,"pubTotal":0.5,"masterTotal":0,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w34","title":"FEEL AGAIN","artist":"Halle","status":"draft","unreleased":false,"label":null,"releaseDate":"2025-10-24","notes":null,"pubTotal":0.1667,"masterTotal":0.05,"controlledPub":0.1667,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.1667,"mas":0.05,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Halle Bailey","pn":null,"pub":null,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"David Kenneth Phelps","pn":"D. Phelps","pub":null,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Tim Maxey","pn":null,"pub":null,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w35","title":"LAST DANCE","artist":"Emery Kelly, Carlina","status":"draft","unreleased":false,"label":null,"releaseDate":"2024-06-16","notes":null,"pubTotal":0.5,"masterTotal":0,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w36","title":"ANSWER YOUR PHONE","artist":"Leon Thomas","status":"draft","unreleased":false,"label":"UMG","releaseDate":"2024-09-27","notes":null,"pubTotal":0,"masterTotal":0.0833,"controlledPub":0,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":null,"mas":0.0833,"pro":null,"ipi":null,"ctl":true}],"regs":[]},{"id":"w37","title":"HARD PART","artist":"Teyana Taylor, Lucky Daye","status":"draft","unreleased":false,"label":"UMG","releaseDate":"2025-08-22","notes":null,"pubTotal":1,"masterTotal":0.055,"controlledPub":0.125,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.125,"mas":0.055,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Carrington Brown","pn":null,"pub":0.125,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"David Kenneth Phelps","pn":"D. Phelps","pub":0.125,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Bassman (Unknown)","pn":null,"pub":0.125,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Teyana Taylor","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Brent Faiyaz","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w38","title":"NIECY NASH NARRATION","artist":"Teyana Taylor, Niecy Nash","status":"draft","unreleased":false,"label":"UMG","releaseDate":"2025-08-22","notes":"Waiting on Splits - Splits add up to 106.4%","pubTotal":1.064,"masterTotal":0,"controlledPub":0.166,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.166,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Carrington Brown","pn":null,"pub":0.166,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Kavin Smith","pn":null,"pub":0.066,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Bassman (Unknown)","pn":null,"pub":0.166,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Teyana Taylor","pn":null,"pub":0.2,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Coco Writer","pn":null,"pub":0.2,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Performer (Unknown)","pn":null,"pub":0.1,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w39","title":"ISSA RAE - NARRATION PART 1","artist":"Teyana Taylor, Issa Rae","status":"draft","unreleased":false,"label":"UMG","releaseDate":"2025-08-22","notes":null,"pubTotal":1,"masterTotal":0,"controlledPub":0.2,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.2,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Carrington Brown","pn":null,"pub":0.2,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Performer","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Simon Jonasson","pn":null,"pub":0.1,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Teyana Taylor","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w40","title":"ISSA RAE'S NARRATION PART 2","artist":"Teyana Taylor, Issa Rae","status":"draft","unreleased":false,"label":"UMG","releaseDate":"2025-08-22","notes":null,"pubTotal":1,"masterTotal":0,"controlledPub":0.25,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.25,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Carrington Brown","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Teyana Taylor","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Unknown","pn":null,"pub":0.25,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w41","title":"REACHING","artist":"Durand Bernard","status":"draft","unreleased":false,"label":null,"releaseDate":"2025-02-18","notes":null,"pubTotal":0.2,"masterTotal":0,"controlledPub":0.2,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.2,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w42","title":"GOOD BAD UGLY","artist":"Giveon","status":"draft","unreleased":false,"label":null,"releaseDate":"2025-07-11","notes":"Waiting on Splits - Splits add up to 97.5%","pubTotal":0.975,"masterTotal":0.075,"controlledPub":0.175,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.175,"mas":0.075,"pro":"ASCAP","ipi":"795224513","ctl":true},{"n":"Leon Thomas III","pn":null,"pub":0.2,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"David Kenneth Phelps","pn":"D. Phelps","pub":0.175,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Rupert Thomas","pn":null,"pub":0.1,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Carlos E. Martin","pn":null,"pub":0.025,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Jason Boyd","pn":null,"pub":0.2,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"James Essien","pn":null,"pub":0.05,"mas":null,"pro":null,"ipi":null,"ctl":false},{"n":"Giveon Evans","pn":null,"pub":0.05,"mas":null,"pro":null,"ipi":null,"ctl":false}],"regs":[]},{"id":"w43","title":"BAD B*TCH TENDENCIES","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2025-07-24","notes":null,"pubTotal":0.15,"masterTotal":0,"controlledPub":0.15,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.15,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w44","title":"REBELS","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2017-12-08","notes":null,"pubTotal":0.025,"masterTotal":0,"controlledPub":0.025,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.025,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w45","title":"NO SEGREGATION","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-07-31","notes":null,"pubTotal":0.5,"masterTotal":0,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w46","title":"FIRST LOVE","artist":"Ohana Bam, B.K. Habermehl","status":"draft","unreleased":false,"label":null,"releaseDate":"2022-08-25","notes":null,"pubTotal":0.5,"masterTotal":0,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w47","title":"ON THE LOW (ACOUSTIC)","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-12-18","notes":null,"pubTotal":0.0917,"masterTotal":0,"controlledPub":0.0917,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0917,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w48","title":"ON THE LOW","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-02-28","notes":null,"pubTotal":0.0917,"masterTotal":0,"controlledPub":0.0917,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0917,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w49","title":"THEME SONG","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-02-28","notes":null,"pubTotal":0.0917,"masterTotal":0,"controlledPub":0.0917,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0917,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w50","title":"THEME SONG (ACOUSTIC)","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-12-18","notes":null,"pubTotal":0.0917,"masterTotal":0,"controlledPub":0.0917,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0917,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w51","title":"NIGHT TIME","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-02-14","notes":null,"pubTotal":0.0917,"masterTotal":0,"controlledPub":0.0917,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0917,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w52","title":"NIGHT TIME (ACOUSTIC)","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-12-18","notes":null,"pubTotal":0.0917,"masterTotal":0,"controlledPub":0.0917,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0917,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w53","title":"IN THE BACKYARD","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-02-28","notes":null,"pubTotal":0.5,"masterTotal":0,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w54","title":"IN THE BACKYARD (ACOUSTIC)","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-12-18","notes":null,"pubTotal":0.5,"masterTotal":0,"controlledPub":0.5,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.5,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w55","title":"SPECIAL SOMEONE","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-02-28","notes":null,"pubTotal":0.0719,"masterTotal":0,"controlledPub":0.0719,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0719,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w56","title":"SPECIAL SOMEONE (ACOUSTIC)","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-12-18","notes":null,"pubTotal":0.0719,"masterTotal":0,"controlledPub":0.0719,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0719,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w57","title":"KILL EM WITH SILENCE","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-02-28","notes":null,"pubTotal":0.0813,"masterTotal":0,"controlledPub":0.0813,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0813,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w58","title":"KILL EM WITH SILENCE (ACOUSTIC)","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-12-18","notes":null,"pubTotal":0.0813,"masterTotal":0,"controlledPub":0.0813,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.0813,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w59","title":"THROW IT","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-02-28","notes":null,"pubTotal":0.1,"masterTotal":0,"controlledPub":0.1,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.1,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]},{"id":"w60","title":"THROW IT (ACOUSTIC)","artist":"Ohana Bam","status":"draft","unreleased":false,"label":null,"releaseDate":"2020-12-18","notes":null,"pubTotal":0.1,"masterTotal":0,"controlledPub":0.1,"writers":[{"n":"Robert Rylan Gueringer","pn":null,"pub":0.1,"mas":null,"pro":"ASCAP","ipi":"795224513","ctl":true}],"regs":[]}];
+const LOGO = "data:image/png;base64,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";
+const BUILTIN = [{ id:"rgmg", name:"Rob Gueringer Music Group", owner:"RGMG", builtin:true, source:"demo", works:RGMG_WORKS }];
+const LSKEY = "unsurfaced_platform_v1";
+
+/* ---------- domain helpers ---------- */
+const round=x=>Math.round(x*10000)/10000;
+const pct=x=>x==null?"—":(x*100).toFixed(1)+"%";
+const near=(n,t)=>Math.abs(n-t)<=0.005;
+const STATUS_LABEL={draft:"Draft",under_review:"Under review",confirmed:"Confirmed",ready_for_submission:"Ready",submitted:"Submitted",registered:"Registered",conflict:"Conflict",archived:"Archived"};
+const STATUS_TONE={draft:"",under_review:"amber",confirmed:"ink",ready_for_submission:"gold",submitted:"red",registered:"gold",conflict:"solid",archived:""};
+const READY_LABEL={clean:"Clean",needs_review:"Needs review",missing_data:"Missing data",conflict:"Conflict",ready_for_submission:"Ready",registered:"Registered"};
+const READY_TONE={clean:"gold",ready_for_submission:"gold",registered:"gold",needs_review:"amber",missing_data:"amber",conflict:"solid"};
+
+function validate(w){
+  const f=[];
+  if(w.writers.length&&w.pubTotal>0&&!near(w.pubTotal,1))f.push({c:"writer_pub_total",l:"warning",m:`Writer publishing shares total ${(w.pubTotal*100).toFixed(1)}% (expected 100%)`});
+  if(w.writers.some(x=>!x.ipi))f.push({c:"missing_ipi",l:"warning",m:"One or more writers are missing an IPI/CAE number"});
+  if(w.writers.some(x=>!x.pro))f.push({c:"missing_pro",l:"warning",m:"One or more writers are missing a PRO/CMO affiliation"});
+  if(!w.writers.some(x=>x.ctl))f.push({c:"no_controlled",l:"warning",m:"No controlled writer on this work"});
+  if(w.regs.some(r=>r.st==="rejected"))f.push({c:"reg_rejected",l:"error",m:"A registration was rejected"});
+  if(w.regs.some(r=>r.st==="conflict"))f.push({c:"reg_conflict",l:"error",m:"A registration is in conflict"});
+  return f;
+}
+function readiness(w,f){
+  if(w.status==="registered")return"registered";
+  if(f.some(x=>x.l==="error"))return"conflict";
+  if(f.some(x=>x.c.endsWith("_total")))return"needs_review";
+  if(f.some(x=>x.l==="warning"))return"missing_data";
+  if(w.status==="ready_for_submission"||w.status==="submitted")return"ready_for_submission";
+  return"clean";
+}
+function recompute(w){
+  w.pubTotal=round(w.writers.reduce((s,x)=>s+(x.pub||0),0));
+  w.masterTotal=round(w.writers.reduce((s,x)=>s+(x.mas||0),0));
+  w.controlledPub=round(w.writers.filter(x=>x.ctl).reduce((s,x)=>s+(x.pub||0),0));
+  return w;
+}
+
+/* ---------- import: cleaning + normalize ---------- */
+const NA=new Set(["","n/a","na","none","null","-","tbd","*"]);
+const blank=v=>v==null||(typeof v==="string"&&NA.has(v.trim().toLowerCase()));
+function coerceShare(raw){if(blank(raw))return{v:null,note:null};if(typeof raw==="number"&&isFinite(raw))return{v:raw,note:null};const s=String(raw).trim();const p=s.match(/^(\d+(?:\.\d+)?)\s*%$/);if(p)return{v:+p[1]/100,note:null};if(/^\d*\.?\d+$/.test(s)){const n=+s;return{v:n,note:n>1?`Share ${n} exceeds 1.0`:null};}return{v:null,note:`Unparsed share value: "${s}"`};}
+function coerceIpi(raw){if(blank(raw))return{v:null,note:null};const d=String(raw).replace(/\.0+$/,"").replace(/[^\d]/g,"");if(!d)return{v:null,note:`No digits in IPI "${raw}"`};return{v:d,note:(d.length>=9&&d.length<=11)?null:`IPI length ${d.length} (expected 9-11)`};}
+const pad=n=>String(n).padStart(2,"0");
+function coerceDate(raw){if(blank(raw))return{v:null,note:null};if(raw instanceof Date&&!isNaN(raw))return{v:`${raw.getFullYear()}-${pad(raw.getMonth()+1)}-${pad(raw.getDate())}`,note:null};const s=String(raw).trim();if(/^unreleased$/i.test(s))return{v:null,note:"unreleased"};let m=s.match(/(\d{4})-(\d{2})-(\d{2})/);if(m)return{v:`${m[1]}-${m[2]}-${m[3]}`,note:null};m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(m){let y=m[3];if(y.length===2)y="20"+y;return{v:`${y}-${pad(+m[1])}-${pad(+m[2])}`,note:null};}return{v:null,note:null};}
+function splitName(raw){const s=String(raw??"").trim();const q=s.match(/^(.*?)\s*["“]([^"”]+)["”]\s*$/);return q?{n:q[1].trim(),pn:q[2].trim()}:{n:s.replace(/["“”]+$/g,"").trim(),pn:null};}
+function parseReg(raw){if(blank(raw))return{st:"not_started",d:null};const s=String(raw).trim(),d=coerceDate(s).v,low=s.toLowerCase();let st="submitted";if(d&&/^\d{4}-\d{2}-\d{2}$/.test(s))st="accepted";else if(/follow|messag|waiting|pending/.test(low))st="needs_info";else if(/reject/.test(low))st="rejected";else if(/merge|conflict/.test(low))st="conflict";else if(d)st="accepted";return{st,d};}
+const REG_COLS={ASCAP:"Registered at ASCAP","HFA/MLC":"Registered at HFA/MLC",PRS:"Registered at PRS",CMRRA:"Registered at CMRRA",YouTube:"Registered at YouTube",SACEM:"Registered at SACEM",SoundExchange:"Sound Exchange"};
+function mapPendingStatus(raw){const s=String(raw??"").trim().toLowerCase();const u=/unreleased/.test(s);if(s.startsWith("ready"))return{status:"confirmed",u};if(s.startsWith("unconfirmed"))return{status:"under_review",u};return{status:"draft",u};}
+function rowsFromSheet(ws){const m=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});const head=(m[2]||[]).map(h=>h==null?"":String(h));const out=[];for(let r=3;r<m.length;r++){const a=m[r]||[];if(!a.some(c=>c!==null&&c!==""))continue;const o={};head.forEach((h,i)=>{if(h)o[h]=a[i]??null;});out.push(o);}return out;}
+function normSubmitted(rows){const works=[],warnings=[];rows.forEach((row,i)=>{const sr=i+4,title=String(row["Song Title"]??"").trim();if(!title)return;const pub=coerceShare(row["Pub Split Share"]),mas=coerceShare(row["Master Split Share"]);if(pub.note)warnings.push({row:sr,field:"pub_share",m:pub.note});const nm=splitName(row["Writer"]);const regs=[];for(const[soc,col]of Object.entries(REG_COLS)){if(blank(row[col]))continue;const{st,d}=parseReg(row[col]);regs.push({s:soc,st,d});}const rel=coerceDate(row["Release Date"]);const wr=[{n:nm.n,pn:nm.pn,pub:pub.v,mas:mas.v,pro:null,ipi:null,ctl:true}];const w={title,artist:row["Artist"]||null,status:"submitted",unreleased:rel.note==="unreleased",label:row["Label / Publisher"]||null,releaseDate:rel.v,notes:row["Notes"]||null,writers:wr,regs};recompute(w);works.push(w);});return{profile:"submitted",works,warnings};}
+function normPending(rows){const works=[],warnings=[];rows.forEach((row,i)=>{const sr=i+4,title=String(row["Song Title"]??"").trim();if(!title)return;const{status,u}=mapPendingStatus(row["Status"]);const wr=[];for(let b=1;b<=10;b++){const nameCol=`Writer ${b} Full Name*`;if(blank(row[nameCol]))continue;const pub=coerceShare(row[`Writer ${b} Pub Share*`]);if(pub.note)warnings.push({row:sr,field:`writer_${b}_pub_share`,m:pub.note});const ipi=coerceIpi(row[`Writer ${b} IPI${b===1?"*":""}`]);if(ipi.note)warnings.push({row:sr,field:`writer_${b}_ipi`,m:ipi.note});const mas=coerceShare(row[`Writer ${b} Master Share${b===1?"*":""}`]);const nm=splitName(row[nameCol]);wr.push({n:nm.n,pn:nm.pn,pub:pub.v,mas:mas.v,pro:row[`Writer ${b} PRO${b===1?"*":""}`]||null,ipi:ipi.v,ctl:b===1});}if(!wr.length)warnings.push({row:sr,field:"writers",m:"No writer names found"});const w={title,artist:row["Artist"]||null,status,unreleased:u,label:row["Label / Publisher"]||null,releaseDate:coerceDate(row["Release Date"]).v,notes:null,writers:wr,regs:[]};recompute(w);if(w.pubTotal>0&&Math.abs(w.pubTotal-1)>.005)warnings.push({row:sr,field:"pub_share_total",m:`Pub shares total ${(w.pubTotal*100).toFixed(1)}% (expected 100%)`});works.push(w);});return{profile:"pending",works,warnings};}
+
+/* ---------- platform store ---------- */
+const Platform={
+  catalogs:[], live:{on:false,supa:null,orgId:null},
+  load(){try{const s=JSON.parse(localStorage.getItem(LSKEY));if(s&&Array.isArray(s.catalogs)&&s.catalogs.length){this.catalogs=s.catalogs;ensureRgmg(this.catalogs);return;}}catch(e){}this.catalogs=JSON.parse(JSON.stringify(BUILTIN));this.save();},
+  save(){try{localStorage.setItem(LSKEY,JSON.stringify({catalogs:this.catalogs}));}catch(e){}},
+  get(id){return this.catalogs.find(c=>c.id===id)||null;},
+  add(name,owner){const id="cat"+Date.now().toString(36);this.catalogs.push({id,name,owner:owner||name,source:"demo",works:[]});this.save();return id;},
+  remove(id){this.catalogs=this.catalogs.filter(c=>c.id!==id);this.save();},
+  resetRgmg(){const r=this.get("rgmg");if(r){r.works=JSON.parse(JSON.stringify(RGMG_WORKS));this.save();}}
+};
+function ensureRgmg(list){if(!list.some(c=>c.id==="rgmg"))list.unshift(JSON.parse(JSON.stringify(BUILTIN[0])));}
+function catId(w,c){return w.id||(w.id=(c.id+"-w"+Math.random().toString(36).slice(2,8)));}
+
+/* ---------- render helpers ---------- */
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function statusPill(s){return `<span class="pill ${STATUS_TONE[s]||""}">${STATUS_LABEL[s]||s}</span>`;}
+function readyPill(r){return `<span class="pill ${READY_TONE[r]||""}">${READY_LABEL[r]||r}</span>`;}
+function meter(ctl,total){const over=total>1.005,w=x=>Math.min(Math.max(x,0),1.5)*100+"%";return `<div class="meter"><div class="meter-bar ${over?"over":""}"><div class="meter-total" style="width:${w(total)}"></div><div class="meter-ctl" style="width:${w(ctl)}"></div><div class="meter-tick"></div></div><div class="meter-cap"><span class="s">ctl ${(ctl*100).toFixed(1)}%</span><span class="${over?"o":""}">${(total*100).toFixed(1)}%</span></div></div>`;}
+function metrics(ws){const miss=ws.filter(w=>w.pubTotal>0&&Math.abs(w.pubTotal-1)>.005).length;const conflict=ws.filter(w=>readiness(w,validate(w))==="conflict").length;return{total:ws.length,draft:ws.filter(w=>w.status==="draft").length,review:ws.filter(w=>w.status==="under_review").length,miss,conflict,pending:ws.filter(w=>w.status==="submitted").length,writers:new Set(ws.flatMap(w=>w.writers.map(x=>x.n))).size};}
+
+/* ---------- nav ---------- */
+function renderNav(){
+  const inCat=CUR;
+  const links=inCat?`
+    <a class="nav-back" data-go="#">← Catalogs</a>
+    <span class="catbadge">${esc(CUR.name)}</span>
+    <a data-go="#c/${CUR.id}" data-route="dashboard">Dashboard</a>
+    <a data-go="#c/${CUR.id}/works" data-route="works">Works</a>
+    <a data-go="#c/${CUR.id}/new" data-route="new">New</a>
+    <a data-go="#c/${CUR.id}/import" data-route="import">Import</a>
+    <a data-go="#c/${CUR.id}/export" data-route="export">Export</a>
+    <span class="modepill ${Platform.live.on?"live":""}" id="modepill"><span class="dot"></span>${Platform.live.on?"Live":"Demo"}</span>
+    <button class="btn sm" id="connectBtn">${Platform.live.on?"Connected":"Connect"}</button>`:`
+    <span class="modepill" id="modepill"><span class="dot"></span>Platform</span>`;
+  document.getElementById("navIn").innerHTML=`<div class="brand"><img class="brandmark" src="${LOGO}" alt="Unsurfaced™"/></div><nav class="nav-links" id="nav">${links}</nav>`;
+  const cb=document.getElementById("connectBtn");if(cb)cb.onclick=()=>openModal("connModal");
+}
+
+/* ---------- hub ---------- */
+function viewHub(){
+  const cards=Platform.catalogs.map(c=>{
+    const m=metrics(c.works);
+    return `<a class="cat-card" data-go="#c/${c.id}">
+      ${!c.builtin?`<button class="cat-del" data-del="${c.id}">Remove</button>`:""}
+      <div class="ctop"><div><h3>${esc(c.name)}</h3><div class="owner">${esc(c.owner||"")}</div></div>${c.source==="live"?'<span class="pill amber">live</span>':""}</div>
+      <div class="cat-stats">
+        <div class="s"><div class="n">${m.total}</div><div class="l">Works</div></div>
+        <div class="s"><div class="n">${m.writers}</div><div class="l">Writers</div></div>
+        <div class="s"><div class="n ${m.miss?"amber":""}">${m.miss}</div><div class="l">Need review</div></div>
+        <div class="s"><div class="n ${m.conflict?"red":""}">${m.conflict}</div><div class="l">Conflicts</div></div>
+      </div>
+      <div class="cat-enter">Enter catalog →</div>
+    </a>`;}).join("");
+  return `<section class="hero"><div class="wrap hero-in">
+      <div class="eyebrow">Unsurfaced<i>™</i> Rights Administration</div>
+      <h1>Schedule <em>A</em></h1>
+      <p>One front door to every catalog you administer — <b>works, writers, splits, recordings, and registrations</b>, each in its own auditable workspace. A work is not a recording.</p>
+    </div></section>
+    <div class="wrap section">
+      <div class="sec-head"><div><h2>Catalogs</h2><div class="lead">Select a catalog to administer it, or add a new one. Everything inside a catalog is scoped to that catalog.</div></div></div>
+      <div class="cat-grid">${cards}<button class="cat-add" id="addCatBtn"><div class="plus">+</div><div style="margin-top:10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase">Add catalog</div></button></div>
+    </div>`;
+}
+
+/* ---------- catalog views ---------- */
+function viewDashboard(c){
+  const m=metrics(c.works),recent=c.works.slice(0,6);
+  return `<section class="hero"><div class="wrap hero-in">
+      <div class="eyebrow">Unsurfaced<i>™</i> · ${esc(c.owner||c.name)}</div>
+      <h1>${esc(c.name)}</h1>
+      <p>A living Schedule A — works, writers, splits, recordings, and registrations for this catalog.</p>
+    </div></section>
+    <div class="wrap section">
+      <div class="grid g4">
+        <a class="tile" data-go="#c/${c.id}/works"><div class="k">Total works</div><div class="v">${m.total}</div></a>
+        <a class="tile" data-go="#c/${c.id}/works"><div class="k">Writers</div><div class="v">${m.writers}</div></a>
+        <a class="tile" data-go="#c/${c.id}/works"><div class="k">Missing splits</div><div class="v amber">${m.miss}</div><div class="h">Don't total 100%</div></a>
+        <a class="tile" data-go="#c/${c.id}/works"><div class="k">Pending submission</div><div class="v">${m.pending}</div></a>
+        <a class="tile" data-go="#c/${c.id}/works"><div class="k">Under review</div><div class="v amber">${m.review}</div></a>
+        <a class="tile" data-go="#c/${c.id}/works"><div class="k">Registration issues</div><div class="v red">${m.conflict}</div></a>
+        <a class="tile" data-go="#c/${c.id}/new"><div class="k">Add</div><div class="v" style="font-size:22px;line-height:1.7">New work →</div></a>
+        <a class="tile" data-go="#c/${c.id}/import"><div class="k">Bulk</div><div class="v" style="font-size:22px;line-height:1.7">Import →</div></a>
+      </div>
+      <div class="section"><div class="panel">
+        <div class="panel-h"><h3>Recently surfaced</h3><a class="muted" data-go="#c/${c.id}/works" style="font-size:12px">All works →</a></div>
+        ${recent.length?`<div class="scrollx"><table><tbody>${recent.map(w=>`<tr><td class="t-title"><a data-go="#c/${c.id}/work/${catId(w,c)}">${esc(w.title)}</a></td><td class="muted">${esc(w.artist||"—")}</td><td style="text-align:right">${statusPill(w.status)}</td></tr>`).join("")}</tbody></table></div>`:emptyBlock(c)}
+      </div></div>
+    </div>`;
+}
+function emptyBlock(c){return `<div class="empty" style="border:0;background:transparent"><h3>This catalog is empty</h3><p>Import an existing Schedule A spreadsheet, or add your first composition by hand.</p><div class="acts"><a class="btn red" data-go="#c/${c.id}/import">Import Schedule A</a><a class="btn" data-go="#c/${c.id}/new">New work</a></div></div>`;}
+function viewWorks(c){
+  if(!c.works.length)return `<div class="wrap section"><div class="sec-head"><div><h2>Works</h2></div></div><div class="empty"><h3>No works yet</h3><p>Import a Schedule A or add a composition to begin building this catalog.</p><div class="acts"><a class="btn red" data-go="#c/${c.id}/import">Import</a><a class="btn" data-go="#c/${c.id}/new">New work</a></div></div></div>`;
+  return `<div class="wrap section">
+    <div class="sec-head"><div><h2>Works</h2><div class="lead">The bar shows controlled vs total publishing share against the 100% mark.</div></div>
+      <input id="q" placeholder="Search title or artist…" style="background:var(--panel);border:1px solid var(--line2);border-radius:4px;color:var(--ink);padding:9px 12px;font-family:var(--mono);font-size:12px;width:230px"/></div>
+    <div class="panel scrollx"><table><thead><tr><th>Title</th><th>Artist</th><th>Writers</th><th>Pub split (controlled)</th><th>Status</th><th>Readiness</th></tr></thead><tbody id="worksBody"></tbody></table></div>
+  </div>`;
+}
+function worksRows(c,filter){
+  const t=(filter||"").trim().toLowerCase();
+  const list=c.works.filter(w=>!t||w.title.toLowerCase().includes(t)||(w.artist||"").toLowerCase().includes(t));
+  if(!list.length)return `<tr><td colspan="6" class="muted" style="text-align:center;padding:40px">No works match "${esc(filter)}".</td></tr>`;
+  return list.map(w=>{const r=readiness(w,validate(w));return `<tr><td class="t-title"><a data-go="#c/${c.id}/work/${catId(w,c)}">${esc(w.title)}</a></td><td class="muted">${esc(w.artist||"—")}</td><td class="mono tnum muted">${w.writers.length}</td><td>${meter(w.controlledPub,w.pubTotal)}</td><td>${statusPill(w.status)}</td><td>${readyPill(r)}</td></tr>`;}).join("");
+}
+function viewWork(c,id){
+  const w=c.works.find(x=>catId(x,c)===id);
+  if(!w)return `<div class="wrap section"><p class="muted">Work not found. <a data-go="#c/${c.id}/works" style="color:var(--red)">Back to works</a></p></div>`;
+  const f=validate(w),r=readiness(w,f);
+  const real=["Overview","Writers & Splits","Recordings","Registrations"],soon=["Publishers","Metadata","Asset Room","Notes","Audit","Exports"];
+  return `<div class="wrap section">
+    <div class="crumbs"><a data-go="#c/${c.id}/works">← Works</a></div>
+    <div class="det-head"><div><h1>${esc(w.title)}</h1><div class="sub">${esc(w.artist||"—")}${w.unreleased?" · Unreleased":""}${w.releaseDate?` · Released <span class="mono">${w.releaseDate}</span>`:""}</div></div><div style="display:flex;gap:8px">${statusPill(w.status)} ${readyPill(r)}</div></div>
+    <div class="tabs">${real.map((t,i)=>`<a class="${i===0?"on":""}" data-scroll="sec-${t.split(" ")[0].toLowerCase()}">${t}</a>`).join("")}${soon.map(t=>`<span class="soon" title="Coming soon">${t}</span>`).join("")}</div>
+    ${f.length?`<div class="panel" style="padding:16px 18px;margin-bottom:18px"><div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:10px">Validation</div><div class="flags">${f.map(x=>`<div class="flag ${x.l}"><span class="b">${x.l==="error"?"✕":"!"}</span><span>${esc(x.m)}</span></div>`).join("")}</div></div>`:""}
+    <div class="grid g2">
+      <div class="panel" id="sec-writers"><div class="panel-h"><h3>Writers &amp; splits</h3></div><div class="scrollx"><table><thead><tr><th>Writer</th><th>IPI/CAE</th><th>PRO</th><th style="text-align:right">Pub</th><th style="text-align:right">Master</th></tr></thead>
+        <tbody>${w.writers.map(x=>`<tr><td>${esc(x.n)}${x.pn?` <span class="muted">"${esc(x.pn)}"</span>`:""}${x.ctl?` <span class="pill gold" style="margin-left:4px">controlled</span>`:""}</td><td class="mono muted">${x.ipi||"—"}</td><td class="muted">${esc(x.pro||"—")}</td><td class="mono tnum" style="text-align:right">${pct(x.pub)}</td><td class="mono tnum" style="text-align:right">${pct(x.mas)}</td></tr>`).join("")}</tbody>
+        <tfoot><tr><td colspan="3">Total</td><td class="mono tnum" style="text-align:right;color:${!near(w.pubTotal,1)&&w.pubTotal>0?'var(--amber)':'inherit'}">${pct(w.pubTotal)}</td><td class="mono tnum" style="text-align:right">${pct(w.masterTotal)}</td></tr></tfoot></table></div>
+        <div style="padding:16px 18px">${meter(w.controlledPub,w.pubTotal)}</div></div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="panel" id="sec-recordings"><div class="panel-h"><h3>Recording</h3></div><div style="padding:16px 18px;font-size:13px">${w.label||w.releaseDate?`<div>${esc(w.label||"Label —")}</div><div class="muted" style="margin-top:4px">Released ${w.releaseDate||"—"}</div>`:`<div class="muted">No recording recorded.</div>`}</div></div>
+        <div class="panel" id="sec-registrations"><div class="panel-h"><h3>Registrations</h3></div><div style="padding:8px 18px 14px">${w.regs.length?w.regs.map(rg=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px"><span>${esc(rg.s)}</span><span class="muted">${rg.st.replace(/_/g," ")}</span></div>`).join(""):`<div class="muted" style="font-size:13px;padding:6px 0">None tracked.</div>`}</div></div>
+      </div>
+    </div>
+  </div>`;
+}
+function viewNew(c){
+  return `<div class="wrap section" style="max-width:720px">
+    <div class="crumbs"><a data-go="#c/${c.id}">← ${esc(c.name)}</a></div>
+    <div class="sec-head"><div><h2>New composition</h2><div class="lead">Create a work with one controlled writer. Add more writers later, or import a full Schedule A.</div></div></div>
+    <div class="panel" style="padding:24px">
+      <div class="field"><label>Work title *</label><input id="f-title" placeholder="Song title" autocomplete="off"/></div>
+      <div class="row2"><div class="field"><label>Artist</label><input id="f-artist" autocomplete="off"/></div>
+        <div class="field"><label>Status</label><select id="f-status">${Object.entries(STATUS_LABEL).map(([k,v])=>`<option value="${k}"${k==="draft"?" selected":""}>${v}</option>`).join("")}</select></div></div>
+      <div class="row2"><div class="field"><label>Label</label><input id="f-label" autocomplete="off"/></div><div class="field"><label>Release date</label><input id="f-rel" class="mono" placeholder="YYYY-MM-DD" autocomplete="off"/></div></div>
+      <div style="border-top:1px solid var(--line);margin:6px 0 18px;padding-top:18px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)">Controlled writer</div>
+      <div class="field"><label>Legal name *</label><input id="f-wn" autocomplete="off"/></div>
+      <div class="row3"><div class="field"><label>PRO/CMO</label><input id="f-pro" autocomplete="off"/></div><div class="field"><label>IPI/CAE</label><input id="f-ipi" class="mono" autocomplete="off"/></div><div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" id="f-ctl" checked/> Controlled</label></div></div>
+      <div class="row2"><div class="field"><label>Publishing share %</label><input id="f-pub" class="mono" placeholder="e.g. 50" autocomplete="off"/></div><div class="field"><label>Master share %</label><input id="f-mas" class="mono" placeholder="e.g. 50" autocomplete="off"/></div></div>
+      <div class="toast err hide" id="newErr"></div>
+      <div style="display:flex;gap:10px"><button class="btn red" id="newSave">Create work →</button><a class="btn" data-go="#c/${c.id}/works">Cancel</a></div>
+    </div></div>`;
+}
+function viewExport(c){
+  const m=metrics(c.works);
+  return `<div class="wrap section" style="max-width:720px">
+    <div class="crumbs"><a data-go="#c/${c.id}">← ${esc(c.name)}</a></div>
+    <div class="sec-head"><div><h2>Exports</h2><div class="lead">Generate a Schedule A from this catalog. CSV downloads run entirely in your browser.</div></div></div>
+    <div class="panel"><div class="panel-h"><h3>Schedule A · ${esc(c.name)}</h3><span class="muted mono" style="font-size:12px">${m.total} works · ${m.writers} writers</span></div>
+      <div style="padding:18px"><p class="muted" style="font-size:13px;margin:0 0 16px;line-height:1.6">One row per writer split: work title, artist, status, writer, PRO, IPI, publishing share, master share, controlled flag, label, release date, and registrations.</p>
+      <button class="btn red" id="expCsv"${c.works.length?"":" disabled"}>Download Schedule A (CSV)</button></div></div>
+  </div>`;
+}
+
+/* ---------- import + new + export behaviour ---------- */
+let lastPreview=null;
+function handleFile(file){
+  const tEl=document.getElementById("impToast");
+  if(typeof XLSX==="undefined"){tEl.innerHTML=`<div class="toast err">Spreadsheet engine not loaded. This works on the hosted site (CDN); offline preview can't parse files.</div>`;return;}
+  const fr=new FileReader();
+  fr.onload=e=>{try{const results=[];
+    if(file.name.toLowerCase().endsWith(".csv")){const wb=XLSX.read(e.target.result,{type:"binary"});const rows=rowsFromSheet(wb.Sheets[wb.SheetNames[0]]);results.push(rows.some(r=>"Writer 1 Full Name*" in r)?normPending(rows):normSubmitted(rows));}
+    else{const wb=XLSX.read(e.target.result,{type:"array",cellDates:true});wb.SheetNames.forEach(n=>{const ws=wb.Sheets[n];if(/SUBMITTED/i.test(n))results.push(normSubmitted(rowsFromSheet(ws)));else if(/PENDING/i.test(n))results.push(normPending(rowsFromSheet(ws)));});if(!results.length){const rows=rowsFromSheet(wb.Sheets[wb.SheetNames[0]]);results.push(rows.some(r=>"Writer 1 Full Name*" in r)?normPending(rows):normSubmitted(rows));}}
+    lastPreview={file:file.name,results};renderPreview();
+  }catch(err){tEl.innerHTML=`<div class="toast err">Could not read file: ${esc(err.message)}</div>`;}};
+  if(file.name.toLowerCase().endsWith(".csv"))fr.readAsBinaryString(file);else fr.readAsArrayBuffer(file);
+}
+function renderPreview(){
+  const {file,results}=lastPreview;const works=results.flatMap(r=>r.works),warns=results.flatMap(r=>r.warnings);
+  document.getElementById("impPreview").innerHTML=`<div class="panel"><div class="panel-h"><h3>Preview · ${esc(file)}</h3><span class="muted mono" style="font-size:12px">${works.length} works · ${warns.length} warnings</span></div>
+    <div style="padding:12px 18px;display:flex;gap:8px;flex-wrap:wrap">${results.map(r=>`<span class="pill ink">${r.profile}: ${r.works.length} works, ${r.warnings.length} warnings</span>`).join("")}</div>
+    <div class="scrollx" style="max-height:300px;overflow:auto"><table><thead><tr><th>Row</th><th>Field</th><th>Warning</th></tr></thead><tbody>${warns.length?warns.map(w=>`<tr><td class="mono muted tnum">${w.row}</td><td class="mono" style="font-size:12px">${esc(w.field)}</td><td style="color:var(--amber)">${esc(w.m)}</td></tr>`).join(""):`<tr><td colspan="3" class="muted" style="padding:20px">No warnings — clean import.</td></tr>`}</tbody></table></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;padding:14px 18px;border-top:1px solid var(--line)"><button class="btn" id="impCancel">Cancel</button><button class="btn red" id="impCommit">Add ${works.length} works to ${esc(CUR.name)}</button></div></div>`;
+  document.getElementById("impCancel").onclick=()=>{lastPreview=null;document.getElementById("impPreview").innerHTML="";};
+  document.getElementById("impCommit").onclick=commitImport;
+}
+function commitImport(){
+  const works=lastPreview.results.flatMap(r=>r.works);
+  works.forEach(w=>{catId(w,CUR);CUR.works.unshift(w);});
+  Platform.save();
+  document.getElementById("impToast").innerHTML=`<div class="toast ok">Added ${works.length} works to ${esc(CUR.name)}. <a data-go="#c/${CUR.id}/works" style="color:inherit;text-decoration:underline">View works →</a></div>`;
+  lastPreview=null;document.getElementById("impPreview").innerHTML="";renderTicker();
+}
+function saveNewWork(){
+  const g=id=>document.getElementById(id).value.trim();
+  const err=document.getElementById("newErr");err.classList.add("hide");
+  const title=g("f-title"),wn=g("f-wn");
+  if(!title){err.textContent="Work title is required.";err.classList.remove("hide");return;}
+  if(!wn){err.textContent="A writer name is required.";err.classList.remove("hide");return;}
+  const num=v=>{v=v.replace("%","").trim();if(!v)return null;const n=+v;return isNaN(n)?null:(n>1?n/100:n);};
+  const w={title,artist:g("f-artist")||null,status:g("f-status"),unreleased:false,label:g("f-label")||null,releaseDate:g("f-rel")||null,notes:null,
+    writers:[{n:wn,pn:null,pub:num(g("f-pub")),mas:num(g("f-mas")),pro:g("f-pro")||null,ipi:g("f-ipi")||null,ctl:document.getElementById("f-ctl").checked}],regs:[]};
+  recompute(w);catId(w,CUR);CUR.works.unshift(w);Platform.save();renderTicker();navigate(`#c/${CUR.id}/work/${w.id}`);
+}
+function exportCsv(c){
+  const head=["Work Title","Artist","Status","Writer","Professional Name","PRO/CMO","IPI/CAE","Pub Share","Master Share","Controlled","Label","Release Date","Registrations"];
+  const rows=[head];
+  c.works.forEach(w=>{const regs=w.regs.map(r=>`${r.s}:${r.st}`).join("; ");
+    if(!w.writers.length)rows.push([w.title,w.artist,STATUS_LABEL[w.status]||w.status,"","","","","","","",w.label,w.releaseDate,regs]);
+    w.writers.forEach(x=>rows.push([w.title,w.artist,STATUS_LABEL[w.status]||w.status,x.n,x.pn,x.pro,x.ipi,x.pub!=null?(x.pub*100).toFixed(2)+"%":"",x.mas!=null?(x.mas*100).toFixed(2)+"%":"",x.ctl?"Yes":"No",w.label,w.releaseDate,regs]));});
+  const csv=rows.map(r=>r.map(v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(",")).join("\r\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");
+  a.href=url;a.download=`${c.name.replace(/[^\w]+/g,"_")}_Schedule_A.csv`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+
+/* ---------- modals ---------- */
+function openModal(id){document.getElementById(id).classList.add("show");}
+function closeModal(id){document.getElementById(id).classList.remove("show");}
+function setMode(){const inCat=CUR;if(!inCat)return;const mp=document.getElementById("modepill");if(mp){mp.classList.toggle("live",Platform.live.on);mp.innerHTML=`<span class="dot"></span>${Platform.live.on?"Live":"Demo"}`;}const cb=document.getElementById("connectBtn");if(cb)cb.textContent=Platform.live.on?"Connected":"Connect";}
+async function connect(url,key){
+  if(typeof supabase==="undefined")throw new Error("Supabase client not loaded (offline preview).");
+  const client=supabase.createClient(url,key);Platform.live.supa=client;Platform.live.on=true;
+  const {data}=await client.from("organizations").select("id").limit(1);Platform.live.orgId=data&&data[0]?data[0].id:null;
+  if(CUR){await loadLive(CUR);}
+  sessionStorage.setItem("rgmg_supa",JSON.stringify({url,key}));
+}
+async function loadLive(c){
+  const sel="id,primary_title,artist,status,unreleased_flag,date_released,notes,writer_contributions(pub_share,master_share,controlled,writers(legal_name,professional_name,pro_cmo,ipi_cae)),registration_records(society,status),recordings(label,release_date)";
+  const {data,error}=await Platform.live.supa.from("works").select(sel).is("archived_at",null);if(error)throw error;
+  c.works=(data||[]).map(w=>{const wr=(w.writer_contributions||[]).map(x=>({n:x.writers?.legal_name||"(unknown)",pn:x.writers?.professional_name||null,pub:x.pub_share!=null?+x.pub_share:null,mas:x.master_share!=null?+x.master_share:null,pro:x.writers?.pro_cmo||null,ipi:x.writers?.ipi_cae||null,ctl:!!x.controlled}));const rec=(w.recordings||[])[0]||{};const o={id:w.id,title:w.primary_title,artist:w.artist,status:w.status,unreleased:w.unreleased_flag,label:rec.label||null,releaseDate:rec.release_date||w.date_released||null,notes:w.notes,writers:wr,regs:(w.registration_records||[]).map(r=>({s:r.society,st:r.status,d:null}))};return recompute(o);});
+  c.source="live";
+}
+
+/* ---------- router ---------- */
+let CUR=null;
+function setActive(route){document.querySelectorAll("#nav a[data-route]").forEach(a=>a.classList.toggle("on",a.dataset.route===route));}
+function navigate(h){const target=(h==="#"?"":h);if((location.hash||"")!==target){location.hash=target;}render();}
+function render(){try{_render();decorateLinks();}catch(e){console.error(e);const v=document.getElementById("view");if(v)v.innerHTML='<div class="wrap section"><div class="empty"><h3>Something went wrong</h3><p>'+esc(e&&e.message||e)+'</p><div class="acts"><a class="btn red" data-go="#">Back to catalogs</a></div></div></div>';}}
+function decorateLinks(){document.querySelectorAll("[data-go],[data-scroll]").forEach(e=>{if(!e.hasAttribute("tabindex")){e.setAttribute("tabindex","0");e.setAttribute("role","link");}});}
+function _render(){
+  const h=(location.hash||"#").slice(1);const v=document.getElementById("view");
+  if(h.startsWith("sec-"))return; // in-page section anchor — let the browser scroll, don't reroute
+  const parts=h.split("/");
+  if(!h||h==="hub"){CUR=null;renderNav();v.innerHTML=viewHub();bindHub();renderTicker();window.scrollTo(0,0);return;}
+  if(parts[0]==="c"){
+    const c=Platform.get(parts[1]);
+    if(!c){location.hash="#";return;}
+    CUR=c;renderNav();setMode();
+    const sub=parts[2]||"dashboard";
+    if(sub==="works"){v.innerHTML=viewWorks(c);setActive("works");const wb=document.getElementById("worksBody");if(wb){wb.innerHTML=worksRows(c,"");const q=document.getElementById("q");if(q)q.addEventListener("input",e=>wb.innerHTML=worksRows(c,e.target.value));}}
+    else if(sub==="work"){v.innerHTML=viewWork(c,parts[3]);setActive("works");}
+    else if(sub==="new"){v.innerHTML=viewNew(c);setActive("new");document.getElementById("newSave").onclick=saveNewWork;}
+    else if(sub==="import"){v.innerHTML=viewImportPage();setActive("import");bindImport();}
+    else if(sub==="export"){v.innerHTML=viewExport(c);setActive("export");const b=document.getElementById("expCsv");if(b)b.onclick=()=>exportCsv(c);}
+    else{v.innerHTML=viewDashboard(c);setActive("dashboard");}
+    renderTicker();window.scrollTo(0,0);return;
+  }
+  location.hash="#";
+}
+function viewImportPage(){return `<div class="wrap section"><div class="crumbs"><a data-go="#c/${CUR.id}">← ${esc(CUR.name)}</a></div>
+  <div class="sec-head"><div><h2>Import Schedule A</h2><div class="lead">Upload .xlsx or .csv. Every coercion is flagged before it's committed to ${esc(CUR.name)}.</div></div></div>
+  <div class="drop" id="drop"><h3>Drop your Schedule A here</h3><div class="muted" style="font-size:13px">Two-sheet RGMG workbooks (Submitted + Pending) are detected automatically.</div><div class="file-in"><input type="file" id="file" accept=".xlsx,.csv"/></div><div id="impToast"></div></div>
+  <div id="impPreview" style="margin-top:20px"></div></div>`;}
+function bindImport(){const fi=document.getElementById("file");fi.addEventListener("change",e=>{if(e.target.files[0])handleFile(e.target.files[0]);});const d=document.getElementById("drop");["dragover","dragenter"].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.add("warm");}));["dragleave","drop"].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.remove("warm");}));d.addEventListener("drop",e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});}
+function bindHub(){
+  const add=document.getElementById("addCatBtn");if(add)add.onclick=()=>openModal("addModal");
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const id=b.dataset.del;if(confirm('Remove catalog "'+(Platform.get(id)?.name||"")+'"? This deletes it from this browser.')){Platform.remove(id);render();}});
+}
+function renderTicker(){
+  let titles=[];
+  if(CUR){titles=CUR.works.map(w=>({t:w.title,o:CUR.owner||CUR.name}));}
+  else{Platform.catalogs.forEach(c=>c.works.forEach(w=>titles.push({t:w.title,o:c.owner||c.name})));}
+  const el=document.getElementById("ticker");
+  if(!titles.length){el.innerHTML=`<span><i>Schedule A</i> &nbsp;—&nbsp; register a work to surface its title here.</span>`;return;}
+  const cap=titles.slice(0,60);
+  const seg=cap.map(x=>`<span><b>${esc(x.t)}</b> <i>${esc(x.o)}</i></span>`).join("");
+  el.innerHTML=seg+seg;
+  el.style.animationDuration=Math.max(50,Math.round(cap.length*3.5))+"s";
+}
+
+/* ---------- init ---------- */
+function bindGlobal(){
+  // Robust in-page navigation with no hrefs, so embedded viewers never show
+  // an external-link prompt and GitHub Pages routes the same way.
+  document.addEventListener("click",e=>{
+    const s=e.target.closest("[data-scroll]");
+    if(s){const t=document.getElementById(s.getAttribute("data-scroll"));if(t)t.scrollIntoView({behavior:"smooth",block:"start"});return;}
+    const a=e.target.closest("[data-go]");
+    if(!a)return;
+    e.preventDefault();
+    navigate(a.getAttribute("data-go"));
+  });
+  document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const a=e.target.closest("[data-go]");if(a){e.preventDefault();navigate(a.getAttribute("data-go"));}});
+  document.getElementById("addX").onclick=()=>closeModal("addModal");
+  document.getElementById("addGo").onclick=()=>{const n=document.getElementById("newCatName").value.trim(),o=document.getElementById("newCatOwner").value.trim();const err=document.getElementById("addErr");if(!n){err.textContent="Catalog name is required.";err.classList.remove("hide");return;}const id=Platform.add(n,o);closeModal("addModal");document.getElementById("newCatName").value="";document.getElementById("newCatOwner").value="";navigate(`#c/${id}`);};
+  document.getElementById("connX").onclick=()=>closeModal("connModal");
+  document.getElementById("connOff").onclick=()=>{Platform.live.on=false;Platform.live.supa=null;sessionStorage.removeItem("rgmg_supa");if(CUR&&CUR.source==="live"){const r=Platform.get(CUR.id);}closeModal("connModal");render();};
+  document.getElementById("connGo").onclick=async()=>{const url=document.getElementById("supaUrl").value.trim(),key=document.getElementById("supaKey").value.trim();const err=document.getElementById("connErr");err.classList.add("hide");if(!url||!key){err.textContent="Both URL and anon key are required.";err.classList.remove("hide");return;}try{await connect(url,key);closeModal("connModal");render();}catch(e){err.textContent=e.message;err.classList.remove("hide");}};
+  window.addEventListener("hashchange",render);
+}
+async function boot(){
+  Platform.load();bindGlobal();
+  const saved=sessionStorage.getItem("rgmg_supa");
+  if(saved){try{const {url,key}=JSON.parse(saved);await connect(url,key);}catch(e){Platform.live.on=false;}}
+  render();
+}
+boot();
+</script>
+</body>
+</html>
