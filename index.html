@@ -96,8 +96,13 @@ a.tile:hover{border-color:var(--line2)}
 .cat-add{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px dashed var(--line2);border-radius:8px;padding:24px;min-height:200px;color:var(--mut);background:transparent;transition:border-color .15s,color .15s}
 .cat-add:hover{border-color:var(--red);color:var(--ink)}
 .cat-add .plus{font-family:var(--serif);font-size:40px;line-height:1;color:var(--red)}
-.cat-del{position:absolute;top:14px;right:16px;color:var(--mut2);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:none;border:0;opacity:0;transition:opacity .15s}
-.cat-card:hover .cat-del{opacity:1} .cat-del:hover{color:var(--red)}
+.cat-actions{position:absolute;top:14px;right:16px;display:flex;gap:14px;opacity:0;transition:opacity .15s;z-index:3}
+.cat-card:hover .cat-actions{opacity:1}
+.cat-actions button{color:var(--mut2);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:none;border:0;cursor:pointer}
+.cat-actions button:hover{color:var(--red)}
+.field textarea{width:100%;background:#000;border:1px solid var(--line2);border-radius:4px;color:var(--ink);padding:11px 12px;font-family:var(--sans);font-size:14px;resize:vertical}
+.edsec{border-top:1px solid var(--line);margin:22px 0 14px;padding-top:18px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+.wrow,.rrow{border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:12px;background:var(--panel2)}
 
 /* table */
 table{width:100%;border-collapse:collapse;font-size:13px}
@@ -170,9 +175,55 @@ tfoot td{padding:12px 16px;border-top:1px solid var(--line2);font-weight:700}
   .nav-links a{padding:8px 8px} .modepill{display:none} .scrollx{overflow-x:auto} .meter{width:120px} .brandmark{height:17px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ---- access gate ---- */
+#gate{position:fixed;inset:0;z-index:999;background:#000;display:flex;align-items:center;justify-content:center;padding:28px;overflow:hidden;animation:gate-in .5s ease}
+#gate.unlocked{opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s}
+@keyframes gate-in{from{opacity:0}to{opacity:1}}
+.gate-glow{position:absolute;top:-12%;left:50%;transform:translateX(-50%);width:min(900px,120vw);height:560px;background:radial-gradient(closest-side,rgba(255,46,46,.20),transparent 72%);pointer-events:none;filter:blur(8px)}
+.gate-inner{position:relative;z-index:2;width:100%;max-width:420px;text-align:left;animation:gate-rise .7s cubic-bezier(.2,.7,.2,1)}
+@keyframes gate-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.gate-logo{height:30px;width:auto;display:block;margin-bottom:34px}
+.gate-eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--mut)}
+.gate-eyebrow i{color:var(--red);font-style:normal}
+.gate-h1{font-family:var(--serif);font-weight:400;font-size:clamp(46px,12vw,76px);line-height:.9;margin:10px 0 0 -0.05em;letter-spacing:-.01em}
+.gate-h1 em{color:var(--red);font-style:italic}
+.gate-sub{color:var(--mut);font-size:14px;line-height:1.5;margin:16px 0 26px;max-width:340px}
+.gate-field{position:relative;display:flex;align-items:center}
+.gate-field input{flex:1;background:#0b0b0d;border:1px solid var(--line2);border-radius:6px;color:var(--ink);padding:15px 64px 15px 16px;font-family:var(--mono);font-size:15px;letter-spacing:.04em;outline:none;transition:border-color .15s}
+.gate-field input:focus{border-color:var(--red)}
+.gate-field input::placeholder{color:#55555c;letter-spacing:.02em}
+.gate-eye{position:absolute;right:12px;background:none;border:0;color:var(--mut);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:6px}
+.gate-eye:hover{color:var(--ink)}
+.gate-err{color:var(--red);font-size:13px;min-height:18px;margin:10px 2px 0;opacity:0;transition:opacity .15s}
+.gate-err.show{opacity:1}
+.gate-btn{margin-top:18px;width:100%;background:var(--red);border:0;border-radius:6px;color:#fff;padding:15px;font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .12s,filter .15s}
+.gate-btn span{transition:transform .15s}
+.gate-btn:hover{filter:brightness(1.08)}.gate-btn:hover span{transform:translateX(4px)}
+.gate-btn:active{transform:translateY(1px)}
+.gate-btn.bad{animation:gate-shake .4s}
+@keyframes gate-shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-6px)}}
+.gate-note{margin-top:22px;font-size:11px;letter-spacing:.06em;color:#55555c;border-top:1px solid var(--line);padding-top:16px}
+body.locked{overflow:hidden}
 </style>
 </head>
 <body>
+
+<div id="gate">
+  <div class="gate-glow"></div>
+  <div class="gate-inner">
+    <img id="gateLogo" class="gate-logo" alt="Unsurfaced™"/>
+    <div class="gate-eyebrow">Unsurfaced<i>™</i> Rights Administration</div>
+    <h1 class="gate-h1">Schedule <em>A</em></h1>
+    <p class="gate-sub">A private administration space. Enter the access phrase to continue.</p>
+    <div class="gate-field">
+      <input id="gatePass" type="password" placeholder="Access phrase" autocomplete="off" autocapitalize="off" spellcheck="false"/>
+      <button type="button" id="gateEye" class="gate-eye">show</button>
+    </div>
+    <div class="gate-err" id="gateErr" aria-live="polite"></div>
+    <button type="button" id="gateGo" class="gate-btn">Enter <span>→</span></button>
+    <div class="gate-note">Access is limited to those authorized by Unsurfaced™.</div>
+  </div>
+</div>
 
 <header class="nav"><div class="wrap nav-in" id="navIn"></div></header>
 <div class="ticker"><div class="ticker-track" id="ticker"></div></div>
@@ -183,8 +234,8 @@ tfoot td{padding:12px 16px;border-top:1px solid var(--line2);font-weight:700}
 <div class="modal" id="addModal"><div class="modal-box">
   <button class="x" id="addX" aria-label="Close">×</button>
   <div class="logo">UNSURFACED<span style="color:var(--red)">™</span></div>
-  <div class="byl">New catalog</div>
-  <h2>Add a catalog</h2>
+  <div class="byl" id="addByl">New catalog</div>
+  <h2 id="addTitle">Add a catalog</h2>
   <p>Each catalog is its own isolated workspace — works, writers, splits, recordings, and registrations. Start empty, then import a Schedule A or add compositions by hand.</p>
   <div class="field"><label>Catalog name</label><input id="newCatName" placeholder="e.g. Skyline Publishing" autocomplete="off"/></div>
   <div class="field"><label>Owner / entity</label><input id="newCatOwner" placeholder="e.g. Skyline LLC" autocomplete="off"/></div>
@@ -312,9 +363,9 @@ function renderNav(){
 /* ---------- hub ---------- */
 function viewHub(){
   const cards=Platform.catalogs.map(c=>{
-    const m=metrics(c.works);
+    const m=metrics(aw(c));
     return `<a class="cat-card" data-go="#c/${c.id}">
-      ${!c.builtin?`<button class="cat-del" data-del="${c.id}">Remove</button>`:""}
+      <div class="cat-actions"><button data-edit="${c.id}">Rename</button>${!c.builtin?`<button data-del="${c.id}">Remove</button>`:""}</div>
       <div class="ctop"><div><h3>${esc(c.name)}</h3><div class="owner">${esc(c.owner||"")}</div></div>${c.source==="live"?'<span class="pill amber">live</span>':""}</div>
       <div class="cat-stats">
         <div class="s"><div class="n">${m.total}</div><div class="l">Works</div></div>
@@ -337,7 +388,7 @@ function viewHub(){
 
 /* ---------- catalog views ---------- */
 function viewDashboard(c){
-  const m=metrics(c.works),recent=c.works.slice(0,6);
+  const m=metrics(aw(c)),recent=aw(c).slice(0,6);
   return `<section class="hero"><div class="wrap hero-in">
       <div class="eyebrow">Unsurfaced<i>™</i> · ${esc(c.owner||c.name)}</div>
       <h1>${esc(c.name)}</h1>
@@ -362,18 +413,21 @@ function viewDashboard(c){
 }
 function emptyBlock(c){return `<div class="empty" style="border:0;background:transparent"><h3>This catalog is empty</h3><p>Import an existing Schedule A spreadsheet, or add your first composition by hand.</p><div class="acts"><a class="btn red" data-go="#c/${c.id}/import">Import Schedule A</a><a class="btn" data-go="#c/${c.id}/new">New work</a></div></div>`;}
 function viewWorks(c){
-  if(!c.works.length)return `<div class="wrap section"><div class="sec-head"><div><h2>Works</h2></div></div><div class="empty"><h3>No works yet</h3><p>Import a Schedule A or add a composition to begin building this catalog.</p><div class="acts"><a class="btn red" data-go="#c/${c.id}/import">Import</a><a class="btn" data-go="#c/${c.id}/new">New work</a></div></div></div>`;
+  if(!aw(c).length && !c.works.some(w=>w.archived))return `<div class="wrap section"><div class="sec-head"><div><h2>Works</h2></div></div><div class="empty"><h3>No works yet</h3><p>Import a Schedule A or add a composition to begin building this catalog.</p><div class="acts"><a class="btn red" data-go="#c/${c.id}/import">Import</a><a class="btn" data-go="#c/${c.id}/new">New work</a></div></div></div>`;
+  const arc=c.works.filter(w=>w.archived).length;
   return `<div class="wrap section">
     <div class="sec-head"><div><h2>Works</h2><div class="lead">The bar shows controlled vs total publishing share against the 100% mark.</div></div>
       <input id="q" placeholder="Search title or artist…" style="background:var(--panel);border:1px solid var(--line2);border-radius:4px;color:var(--ink);padding:9px 12px;font-family:var(--mono);font-size:12px;width:230px"/></div>
     <div class="panel scrollx"><table><thead><tr><th>Title</th><th>Artist</th><th>Writers</th><th>Pub split (controlled)</th><th>Status</th><th>Readiness</th></tr></thead><tbody id="worksBody"></tbody></table></div>
+    ${arc?`<div style="margin-top:10px;font-size:12px;color:var(--mut)">${arc} archived · <span id="arcToggle" style="color:var(--red);cursor:pointer">${showArchived?"hide":"show"}</span></div>`:""}
   </div>`;
 }
 function worksRows(c,filter){
   const t=(filter||"").trim().toLowerCase();
-  const list=c.works.filter(w=>!t||w.title.toLowerCase().includes(t)||(w.artist||"").toLowerCase().includes(t));
+  const src=showArchived?c.works:aw(c);
+  const list=src.filter(w=>!t||w.title.toLowerCase().includes(t)||(w.artist||"").toLowerCase().includes(t));
   if(!list.length)return `<tr><td colspan="6" class="muted" style="text-align:center;padding:40px">No works match "${esc(filter)}".</td></tr>`;
-  return list.map(w=>{const r=readiness(w,validate(w));return `<tr><td class="t-title"><a data-go="#c/${c.id}/work/${catId(w,c)}">${esc(w.title)}</a></td><td class="muted">${esc(w.artist||"—")}</td><td class="mono tnum muted">${w.writers.length}</td><td>${meter(w.controlledPub,w.pubTotal)}</td><td>${statusPill(w.status)}</td><td>${readyPill(r)}</td></tr>`;}).join("");
+  return list.map(w=>{const r=readiness(w,validate(w));return `<tr${w.archived?' style="opacity:.45"':''}><td class="t-title"><a data-go="#c/${c.id}/work/${catId(w,c)}">${esc(w.title)}</a>${w.archived?' <span class="pill" style="margin-left:4px">archived</span>':''}</td><td class="muted">${esc(w.artist||"—")}</td><td class="mono tnum muted">${w.writers.length}</td><td>${meter(w.controlledPub,w.pubTotal)}</td><td>${statusPill(w.status)}</td><td>${readyPill(r)}</td></tr>`;}).join("");
 }
 function viewWork(c,id){
   const w=c.works.find(x=>catId(x,c)===id);
@@ -382,7 +436,8 @@ function viewWork(c,id){
   const real=["Overview","Writers & Splits","Recordings","Registrations"],soon=["Publishers","Metadata","Asset Room","Notes","Audit","Exports"];
   return `<div class="wrap section">
     <div class="crumbs"><a data-go="#c/${c.id}/works">← Works</a></div>
-    <div class="det-head"><div><h1>${esc(w.title)}</h1><div class="sub">${esc(w.artist||"—")}${w.unreleased?" · Unreleased":""}${w.releaseDate?` · Released <span class="mono">${w.releaseDate}</span>`:""}</div></div><div style="display:flex;gap:8px">${statusPill(w.status)} ${readyPill(r)}</div></div>
+    <div class="det-head"><div><h1>${esc(w.title)}</h1><div class="sub">${esc(w.artist||"—")}${w.unreleased?" · Unreleased":""}${w.releaseDate?` · Released <span class="mono">${w.releaseDate}</span>`:""}</div></div><div style="display:flex;gap:8px;align-items:center">${statusPill(w.status)} ${readyPill(r)} <a class="btn sm" data-go="#c/${c.id}/edit/${id}">Edit</a></div></div>
+    ${w.archived?`<div class="panel" style="padding:13px 18px;margin-bottom:16px;border-color:var(--red)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="color:var(--red);font-size:13px">This entry is archived and hidden from the catalog.</span><button class="btn sm" id="w-restore">Restore</button></div></div>`:""}
     <div class="tabs">${real.map((t,i)=>`<a class="${i===0?"on":""}" data-scroll="sec-${t.split(" ")[0].toLowerCase()}">${t}</a>`).join("")}${soon.map(t=>`<span class="soon" title="Coming soon">${t}</span>`).join("")}</div>
     ${f.length?`<div class="panel" style="padding:16px 18px;margin-bottom:18px"><div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:10px">Validation</div><div class="flags">${f.map(x=>`<div class="flag ${x.l}"><span class="b">${x.l==="error"?"✕":"!"}</span><span>${esc(x.m)}</span></div>`).join("")}</div></div>`:""}
     <div class="grid g2">
@@ -423,6 +478,87 @@ function viewExport(c){
       <div style="padding:18px"><p class="muted" style="font-size:13px;margin:0 0 16px;line-height:1.6">One row per writer split: work title, artist, status, writer, PRO, IPI, publishing share, master share, controlled flag, label, release date, and registrations.</p>
       <button class="btn red" id="expCsv"${c.works.length?"":" disabled"}>Download Schedule A (CSV)</button></div></div>
   </div>`;
+}
+
+let editingCatId=null, showArchived=false;
+function aw(c){return (c.works||[]).filter(w=>!w.archived);}
+function pctNum(v){v=String(v==null?"":v).replace("%","").trim();if(!v)return null;const n=+v;return isNaN(n)?null:(n>1?n/100:n);}
+function toPct(v){return v==null?"":String(+(v*100).toFixed(4));}
+const REG_STATUSES=["not_started","ready","submitted","accepted","rejected","needs_info","conflict","complete"];
+function writerRowHtml(w){w=w||{};return `<div class="wrow" data-wrow>
+  <div class="row2"><div class="field"><label>Legal name</label><input data-f="n" value="${esc(w.n||"")}"/></div>
+    <div class="field"><label>Professional name</label><input data-f="pn" value="${esc(w.pn||"")}"/></div></div>
+  <div class="row3"><div class="field"><label>PRO/CMO</label><input data-f="pro" value="${esc(w.pro||"")}"/></div>
+    <div class="field"><label>IPI/CAE</label><input class="mono" data-f="ipi" value="${esc(w.ipi||"")}"/></div>
+    <div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" data-f="ctl" ${w.ctl?"checked":""}/> Controlled</label></div></div>
+  <div class="row2"><div class="field"><label>Pub share %</label><input class="mono" data-f="pub" value="${toPct(w.pub)}"/></div>
+    <div class="field"><label>Master share %</label><input class="mono" data-f="mas" value="${toPct(w.mas)}"/></div></div>
+  <div style="display:flex;justify-content:flex-end"><button type="button" class="btn sm" data-rmwriter>Remove writer</button></div></div>`;}
+function regRowHtml(r){r=r||{};return `<div class="rrow" data-rrow>
+  <div class="row2"><div class="field"><label>Society / DSP</label><input data-f="s" value="${esc(r.s||"")}"/></div>
+    <div class="field"><label>Status</label><select data-f="st">${REG_STATUSES.map(k=>`<option value="${k}" ${r.st===k?"selected":""}>${k.replace(/_/g," ")}</option>`).join("")}</select></div></div>
+  <div style="display:flex;justify-content:flex-end"><button type="button" class="btn sm" data-rmreg>Remove</button></div></div>`;}
+function viewEditWork(c,id){
+  const w=c.works.find(x=>catId(x,c)===id);
+  if(!w)return `<div class="wrap section"><p class="muted">Work not found. <a data-go="#c/${c.id}/works" style="color:var(--red)">Back to works</a></p></div>`;
+  return `<div class="wrap section" style="max-width:760px">
+    <div class="crumbs"><a data-go="#c/${c.id}/work/${id}">← ${esc(w.title)}</a></div>
+    <div class="sec-head"><div><h2>Edit composition</h2><div class="lead">Change the title or any field. Writer splits recompute on save.</div></div></div>
+    <div class="panel" style="padding:24px" data-editroot>
+      <div class="field"><label>Work title *</label><input id="e-title" value="${esc(w.title)}"/></div>
+      <div class="row2"><div class="field"><label>Artist</label><input id="e-artist" value="${esc(w.artist||"")}"/></div>
+        <div class="field"><label>Status</label><select id="e-status">${Object.entries(STATUS_LABEL).map(([k,v])=>`<option value="${k}" ${w.status===k?"selected":""}>${v}</option>`).join("")}</select></div></div>
+      <div class="row2"><div class="field"><label>Label</label><input id="e-label" value="${esc(w.label||"")}"/></div>
+        <div class="field"><label>Release date</label><input id="e-rel" class="mono" value="${esc(w.releaseDate||"")}" placeholder="YYYY-MM-DD"/></div></div>
+      <div class="row2"><div class="field"><label>ISWC</label><input id="e-iswc" class="mono" value="${esc(w.iswc||"")}"/></div>
+        <div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" id="e-unrel" ${w.unreleased?"checked":""}/> Unreleased</label></div></div>
+      <div class="field"><label>Notes</label><textarea id="e-notes" rows="2">${esc(w.notes||"")}</textarea></div>
+      <div class="edsec">Writers &amp; splits</div>
+      <div id="e-writers">${(w.writers||[]).map(writerRowHtml).join("")}</div>
+      <button type="button" class="btn sm" id="e-addwriter">+ Add writer</button>
+      <div class="edsec">Registrations</div>
+      <div id="e-regs">${(w.regs||[]).map(regRowHtml).join("")}</div>
+      <button type="button" class="btn sm" id="e-addreg">+ Add registration</button>
+      <div class="toast err hide" id="e-err" style="margin-top:18px"></div>
+      <div style="display:flex;gap:10px;margin-top:18px;align-items:center">
+        <button class="btn red" id="e-save">Save changes</button>
+        <a class="btn" data-go="#c/${c.id}/work/${id}">Cancel</a>
+        <button class="btn" id="e-archive" style="margin-left:auto;border-color:var(--red);color:var(--red)">Archive entry</button>
+      </div>
+    </div></div>`;
+}
+function bindEditWork(c,id){
+  document.getElementById("e-addwriter").onclick=()=>document.getElementById("e-writers").insertAdjacentHTML("beforeend",writerRowHtml({ctl:false}));
+  document.getElementById("e-addreg").onclick=()=>document.getElementById("e-regs").insertAdjacentHTML("beforeend",regRowHtml({st:"not_started"}));
+  document.getElementById("e-save").onclick=()=>saveEditWork(c,id);
+  document.getElementById("e-archive").onclick=()=>{if(confirm("Archive this entry? It will be hidden from the catalog (you can restore it).")){const w=c.works.find(x=>catId(x,c)===id);if(w){w.archived=true;Platform.save();renderTicker();navigate(`#c/${c.id}/work/${id}`);}}};
+  document.querySelector("[data-editroot]").addEventListener("click",e=>{const rw=e.target.closest("[data-rmwriter]");if(rw){rw.closest("[data-wrow]").remove();return;}const rr=e.target.closest("[data-rmreg]");if(rr){rr.closest("[data-rrow]").remove();}});
+}
+function saveEditWork(c,id){
+  const w=c.works.find(x=>catId(x,c)===id);if(!w)return;
+  const err=document.getElementById("e-err");err.classList.add("hide");
+  const title=document.getElementById("e-title").value.trim();
+  if(!title){err.textContent="Work title is required.";err.classList.remove("hide");return;}
+  const writers=[...document.querySelectorAll("[data-wrow]")].map(row=>{const g=f=>{const el=row.querySelector(`[data-f="${f}"]`);return el?(el.type==="checkbox"?el.checked:el.value.trim()):"";};const n=g("n");if(!n)return null;return {n,pn:g("pn")||null,pro:g("pro")||null,ipi:g("ipi")||null,ctl:!!g("ctl"),pub:pctNum(g("pub")),mas:pctNum(g("mas"))};}).filter(Boolean);
+  const regs=[...document.querySelectorAll("[data-rrow]")].map(row=>{const g=f=>{const el=row.querySelector(`[data-f="${f}"]`);return el?el.value.trim():"";};const s=g("s");if(!s)return null;return {s,st:g("st")||"not_started",d:null};}).filter(Boolean);
+  w.title=title;
+  w.artist=document.getElementById("e-artist").value.trim()||null;
+  w.status=document.getElementById("e-status").value;
+  w.label=document.getElementById("e-label").value.trim()||null;
+  w.releaseDate=document.getElementById("e-rel").value.trim()||null;
+  w.iswc=document.getElementById("e-iswc").value.trim()||null;
+  w.unreleased=document.getElementById("e-unrel").checked;
+  w.notes=document.getElementById("e-notes").value.trim()||null;
+  w.writers=writers;w.regs=regs;
+  recompute(w);Platform.save();renderTicker();navigate(`#c/${c.id}/work/${id}`);
+}
+function openAddCatalog(editId){
+  editingCatId=editId||null;
+  const nm=document.getElementById("newCatName"),ow=document.getElementById("newCatOwner"),t=document.getElementById("addTitle"),byl=document.getElementById("addByl"),b=document.getElementById("addGo"),err=document.getElementById("addErr");
+  if(err)err.classList.add("hide");
+  if(editingCatId){const cc=Platform.get(editingCatId);nm.value=cc?cc.name:"";ow.value=cc&&cc.owner?cc.owner:"";t.textContent="Rename catalog";byl.textContent="Edit catalog";b.textContent="Save changes";}
+  else{nm.value="";ow.value="";t.textContent="Add a catalog";byl.textContent="New catalog";b.textContent="Create catalog →";}
+  openModal("addModal");
 }
 
 /* ---------- import + new + export behaviour ---------- */
@@ -468,7 +604,7 @@ function saveNewWork(){
 function exportCsv(c){
   const head=["Work Title","Artist","Status","Writer","Professional Name","PRO/CMO","IPI/CAE","Pub Share","Master Share","Controlled","Label","Release Date","Registrations"];
   const rows=[head];
-  c.works.forEach(w=>{const regs=w.regs.map(r=>`${r.s}:${r.st}`).join("; ");
+  aw(c).forEach(w=>{const regs=w.regs.map(r=>`${r.s}:${r.st}`).join("; ");
     if(!w.writers.length)rows.push([w.title,w.artist,STATUS_LABEL[w.status]||w.status,"","","","","","","",w.label,w.releaseDate,regs]);
     w.writers.forEach(x=>rows.push([w.title,w.artist,STATUS_LABEL[w.status]||w.status,x.n,x.pn,x.pro,x.ipi,x.pub!=null?(x.pub*100).toFixed(2)+"%":"",x.mas!=null?(x.mas*100).toFixed(2)+"%":"",x.ctl?"Yes":"No",w.label,w.releaseDate,regs]));});
   const csv=rows.map(r=>r.map(v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(",")).join("\r\n");
@@ -510,8 +646,9 @@ function _render(){
     if(!c){location.hash="#";return;}
     CUR=c;renderNav();setMode();
     const sub=parts[2]||"dashboard";
-    if(sub==="works"){v.innerHTML=viewWorks(c);setActive("works");const wb=document.getElementById("worksBody");if(wb){wb.innerHTML=worksRows(c,"");const q=document.getElementById("q");if(q)q.addEventListener("input",e=>wb.innerHTML=worksRows(c,e.target.value));}}
-    else if(sub==="work"){v.innerHTML=viewWork(c,parts[3]);setActive("works");}
+    if(sub==="works"){v.innerHTML=viewWorks(c);setActive("works");const wb=document.getElementById("worksBody");if(wb){wb.innerHTML=worksRows(c,"");const q=document.getElementById("q");if(q)q.addEventListener("input",e=>wb.innerHTML=worksRows(c,e.target.value));}const tg=document.getElementById("arcToggle");if(tg)tg.onclick=()=>{showArchived=!showArchived;render();};}
+    else if(sub==="work"){v.innerHTML=viewWork(c,parts[3]);setActive("works");const rb=document.getElementById("w-restore");if(rb)rb.onclick=()=>{const ww=c.works.find(x=>catId(x,c)===parts[3]);if(ww){ww.archived=false;Platform.save();renderTicker();render();}};}
+    else if(sub==="edit"){v.innerHTML=viewEditWork(c,parts[3]);setActive("works");bindEditWork(c,parts[3]);}
     else if(sub==="new"){v.innerHTML=viewNew(c);setActive("new");document.getElementById("newSave").onclick=saveNewWork;}
     else if(sub==="import"){v.innerHTML=viewImportPage();setActive("import");bindImport();}
     else if(sub==="export"){v.innerHTML=viewExport(c);setActive("export");const b=document.getElementById("expCsv");if(b)b.onclick=()=>exportCsv(c);}
@@ -526,13 +663,14 @@ function viewImportPage(){return `<div class="wrap section"><div class="crumbs">
   <div id="impPreview" style="margin-top:20px"></div></div>`;}
 function bindImport(){const fi=document.getElementById("file");fi.addEventListener("change",e=>{if(e.target.files[0])handleFile(e.target.files[0]);});const d=document.getElementById("drop");["dragover","dragenter"].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.add("warm");}));["dragleave","drop"].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.remove("warm");}));d.addEventListener("drop",e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});}
 function bindHub(){
-  const add=document.getElementById("addCatBtn");if(add)add.onclick=()=>openModal("addModal");
+  const add=document.getElementById("addCatBtn");if(add)add.onclick=()=>openAddCatalog(null);
+  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();openAddCatalog(b.dataset.edit);});
   document.querySelectorAll("[data-del]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const id=b.dataset.del;if(confirm('Remove catalog "'+(Platform.get(id)?.name||"")+'"? This deletes it from this browser.')){Platform.remove(id);render();}});
 }
 function renderTicker(){
   let titles=[];
-  if(CUR){titles=CUR.works.map(w=>({t:w.title,o:CUR.owner||CUR.name}));}
-  else{Platform.catalogs.forEach(c=>c.works.forEach(w=>titles.push({t:w.title,o:c.owner||c.name})));}
+  if(CUR){titles=aw(CUR).map(w=>({t:w.title,o:CUR.owner||CUR.name}));}
+  else{Platform.catalogs.forEach(c=>aw(c).forEach(w=>titles.push({t:w.title,o:c.owner||c.name})));}
   const el=document.getElementById("ticker");
   if(!titles.length){el.innerHTML=`<span><i>Schedule A</i> &nbsp;—&nbsp; register a work to surface its title here.</span>`;return;}
   const cap=titles.slice(0,60);
@@ -555,13 +693,50 @@ function bindGlobal(){
   });
   document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const a=e.target.closest("[data-go]");if(a){e.preventDefault();navigate(a.getAttribute("data-go"));}});
   document.getElementById("addX").onclick=()=>closeModal("addModal");
-  document.getElementById("addGo").onclick=()=>{const n=document.getElementById("newCatName").value.trim(),o=document.getElementById("newCatOwner").value.trim();const err=document.getElementById("addErr");if(!n){err.textContent="Catalog name is required.";err.classList.remove("hide");return;}const id=Platform.add(n,o);closeModal("addModal");document.getElementById("newCatName").value="";document.getElementById("newCatOwner").value="";navigate(`#c/${id}`);};
+  document.getElementById("addGo").onclick=()=>{const n=document.getElementById("newCatName").value.trim(),o=document.getElementById("newCatOwner").value.trim();const err=document.getElementById("addErr");if(!n){err.textContent="Catalog name is required.";err.classList.remove("hide");return;}if(editingCatId){const cc=Platform.get(editingCatId);if(cc){cc.name=n;cc.owner=o||n;Platform.save();}editingCatId=null;closeModal("addModal");render();}else{const id=Platform.add(n,o);closeModal("addModal");document.getElementById("newCatName").value="";document.getElementById("newCatOwner").value="";navigate(`#c/${id}`);}};
   document.getElementById("connX").onclick=()=>closeModal("connModal");
   document.getElementById("connOff").onclick=()=>{Platform.live.on=false;Platform.live.supa=null;sessionStorage.removeItem("rgmg_supa");if(CUR&&CUR.source==="live"){const r=Platform.get(CUR.id);}closeModal("connModal");render();};
   document.getElementById("connGo").onclick=async()=>{const url=document.getElementById("supaUrl").value.trim(),key=document.getElementById("supaKey").value.trim();const err=document.getElementById("connErr");err.classList.add("hide");if(!url||!key){err.textContent="Both URL and anon key are required.";err.classList.remove("hide");return;}try{await connect(url,key);closeModal("connModal");render();}catch(e){err.textContent=e.message;err.classList.remove("hide");}};
   window.addEventListener("hashchange",render);
 }
+/* ---------- access gate (client-side deterrent — NOT real security) ---------- */
+const GATE_HASH="554fdfccb05985fbb8058bdaf87e80d9136049828eb4c4d17ee9ede2f042845f";
+async function sha256hex(str){
+  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function gateMatch(val){
+  if(window.crypto&&crypto.subtle){try{return (await sha256hex(val))===GATE_HASH;}catch(e){}}
+  return val==="unsurfaced admin"; // fallback for non-secure contexts (e.g. file://)
+}
+function unlockGate(){
+  try{sessionStorage.setItem("uns_admin_ok","1");}catch(e){}
+  const g=document.getElementById("gate");g.classList.add("unlocked");document.body.classList.remove("locked");
+  setTimeout(()=>{g.style.display="none";},480);
+  const p=document.getElementById("gatePass");if(p)p.value="";
+}
+async function tryGate(){
+  const inp=document.getElementById("gatePass"),err=document.getElementById("gateErr"),btn=document.getElementById("gateGo");
+  const val=(inp.value||"").trim().toLowerCase();
+  if(!val){err.textContent="Enter the access phrase.";err.classList.add("show");return;}
+  if(await gateMatch(val)){err.classList.remove("show");unlockGate();}
+  else{err.textContent="That phrase isn't recognized.";err.classList.add("show");btn.classList.add("bad");setTimeout(()=>btn.classList.remove("bad"),420);inp.select();}
+}
+function initGate(){
+  const g=document.getElementById("gate");if(!g)return;
+  const logo=document.getElementById("gateLogo");if(logo&&typeof LOGO!=="undefined")logo.src=LOGO;
+  let unlocked=false;try{unlocked=sessionStorage.getItem("uns_admin_ok")==="1";}catch(e){}
+  if(unlocked){g.style.display="none";g.classList.add("unlocked");return;}
+  document.body.classList.add("locked");
+  const go=document.getElementById("gateGo"),inp=document.getElementById("gatePass"),eye=document.getElementById("gateEye");
+  go.onclick=tryGate;
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();tryGate();}});
+  inp.addEventListener("input",()=>document.getElementById("gateErr").classList.remove("show"));
+  eye.onclick=()=>{const showing=inp.type==="text";inp.type=showing?"password":"text";eye.textContent=showing?"show":"hide";inp.focus();};
+  setTimeout(()=>{try{inp.focus();}catch(e){}},120);
+}
 async function boot(){
+  initGate();
   Platform.load();bindGlobal();
   const saved=sessionStorage.getItem("rgmg_supa");
   if(saved){try{const {url,key}=JSON.parse(saved);await connect(url,key);}catch(e){Platform.live.on=false;}}
