@@ -103,6 +103,40 @@ a.tile:hover{border-color:var(--line2)}
 .field textarea{width:100%;background:#000;border:1px solid var(--line2);border-radius:4px;color:var(--ink);padding:11px 12px;font-family:var(--sans);font-size:14px;resize:vertical}
 .edsec{border-top:1px solid var(--line);margin:22px 0 14px;padding-top:18px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
 .wrow,.rrow{border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:12px;background:var(--panel2)}
+/* ---- session-to-schedule ---- */
+.gate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.gate{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:12px}
+.gate.ok{border-color:rgba(245,176,33,.35)} .gate.ok .gb{color:var(--amber)}
+.gate.bad{border-color:rgba(255,46,46,.4)} .gate.bad .gb{color:var(--red)}
+.gate .gb{font-weight:700} .gate .gl{flex:1} .gate .gd{color:var(--mut);font-family:var(--mono);font-size:10.5px}
+.risk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.risk{background:var(--bg);padding:16px 18px;text-decoration:none;color:var(--ink);transition:background .15s}
+.risk:hover{background:var(--panel)}
+.risk .n{font-family:var(--serif);font-size:30px;line-height:1}
+.risk .n.red{color:var(--red)} .risk .n.amber{color:var(--amber)}
+.risk .l{color:var(--mut);font-size:11px;margin-top:6px;letter-spacing:.04em}
+.conf-ok{color:var(--amber);font-family:var(--mono);font-size:11px;white-space:nowrap}
+.wf-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.wf-row .wf-note{flex:1;color:var(--ink)} .wf-row .wf-age{color:var(--mut);font-family:var(--mono);font-size:11px}
+.wf-add{display:flex;gap:8px;margin-top:12px}
+.wf-add select,.wf-add input{background:#0b0b0d;border:1px solid var(--line2);border-radius:4px;color:var(--ink);padding:8px 10px;font-family:var(--sans);font-size:12px}
+.wf-add input{flex:1}
+.wr-in{width:100%;background:#0b0b0d;border:1px solid var(--red);border-radius:4px;color:var(--ink);padding:6px 9px;font-size:12px}
+/* ---- profiles, avatars, sessions ---- */
+.gate-profiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:6px 0 4px}
+.gp-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;background:#0b0b0d;border:1px solid var(--line2);border-radius:8px;padding:14px;cursor:pointer;text-align:left;transition:border-color .15s}
+.gp-card:hover{border-color:var(--red)}
+.gp-name{color:var(--ink);font-size:13px;font-weight:600;line-height:1.25}
+.gp-cats{color:var(--mut);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.avatar{border-radius:50%;object-fit:cover;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.avatar-txt{background:#1c1c1f;border:1px solid var(--line2);color:var(--mut);font-weight:700;letter-spacing:.04em}
+.gu-head{display:flex;align-items:center;gap:12px;margin:14px 0 14px}
+.gu-name{font-size:15px;font-weight:600}
+.gu-sub{color:var(--mut);font-size:12px;margin-top:2px}
+.me-chip{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:12px;padding:4px 10px 4px 4px;border:1px solid var(--line2);border-radius:999px;text-decoration:none;align-self:center}
+.me-chip:hover{border-color:var(--red)}
+.ucats{max-height:150px;overflow:auto;border:1px solid var(--line2);border-radius:6px;padding:8px 12px;background:#0b0b0d}
+#mePhoto,#uPhoto{color:var(--mut);font-size:12px}
 
 /* table */
 table{width:100%;border-collapse:collapse;font-size:13px}
@@ -293,7 +327,7 @@ body.admin #public{display:none}
   <footer class="pub-foot"><div class="wrap">Administering a catalog? <button type="button" class="linklike" id="signInBtn2">Sign in</button> for the full Schedule A rights platform. <span class="muted">· Public metadata via MusicBrainz.</span></div></footer>
 </div>
 
-<!-- ===== ACCESS GATE (opens on demand from the public journey) ===== -->
+<!-- ===== ACCESS GATE: catalog profile sign-in + admin access ===== -->
 <div id="gate">
   <button type="button" id="gateClose" class="gate-close" aria-label="Back to search">×</button>
   <div class="gate-glow"></div>
@@ -301,14 +335,45 @@ body.admin #public{display:none}
     <img id="gateLogo" class="gate-logo" alt="Unsurfaced™"/>
     <div class="gate-eyebrow">Unsurfaced<i>™</i> Rights Administration</div>
     <h1 class="gate-h1">Schedule <em>A</em></h1>
-    <p class="gate-sub">A private administration space. Enter the access phrase to continue.</p>
-    <div class="gate-field">
-      <input id="gatePass" type="password" placeholder="Access phrase" autocomplete="off" autocapitalize="off" spellcheck="false"/>
-      <button type="button" id="gateEye" class="gate-eye">show</button>
+
+    <div id="gateUserMode">
+      <p class="gate-sub">Select your catalog profile to sign in.</p>
+      <div class="gate-profiles" id="gateProfiles"></div>
+      <div id="gateUserForm" style="display:none">
+        <div class="gu-head"><span id="guAvatar"></span><div><div id="guName" class="gu-name"></div><div class="gu-sub">Enter your access phrase</div></div><button type="button" class="linklike" id="guBack">change</button></div>
+        <div class="gate-field">
+          <input id="guPass" type="password" placeholder="Access phrase" autocomplete="off" autocapitalize="off" spellcheck="false"/>
+          <button type="button" id="guEye" class="gate-eye">show</button>
+        </div>
+        <div class="gate-err" id="guErr" aria-live="polite"></div>
+        <button type="button" id="guGo" class="gate-btn">Sign in <span>→</span></button>
+      </div>
+      <div class="gate-note">New to Unsurfaced™? <button type="button" class="linklike" id="gateSignupToggle">Create your profile →</button><span style="margin:0 8px;color:#333">·</span><button type="button" class="linklike" id="gateAdminToggle">Admin access →</button></div>
     </div>
-    <div class="gate-err" id="gateErr" aria-live="polite"></div>
-    <button type="button" id="gateGo" class="gate-btn">Enter <span>→</span></button>
-    <div class="gate-note">Access is limited to those authorized by Unsurfaced™.</div>
+
+    <div id="gateSignupMode" style="display:none">
+      <p class="gate-sub">Create your profile and your own catalog space. Access to existing catalogs is granted by an administrator.</p>
+      <div class="row2"><div class="field"><label>Full name *</label><input id="suName" autocomplete="off"/></div>
+        <div class="field"><label>Handle *</label><input id="suHandle" class="mono" placeholder="e.g. fresco" autocomplete="off" autocapitalize="off"/></div></div>
+      <div class="row2"><div class="field"><label>Access phrase *</label><input id="suPass" type="password" autocomplete="off"/></div>
+        <div class="field"><label>Confirm phrase *</label><input id="suPass2" type="password" autocomplete="off"/></div></div>
+      <div class="field"><label>Catalog name</label><input id="suCat" placeholder="Defaults to “Your Name — Catalog”" autocomplete="off"/></div>
+      <div class="field"><label>Profile photo <span style="text-transform:none;letter-spacing:0">(optional)</span></label><input type="file" id="suPhoto" accept="image/*"/></div>
+      <div class="gate-err" id="suErr" aria-live="polite"></div>
+      <button type="button" id="suGo" class="gate-btn">Create profile <span>→</span></button>
+      <div class="gate-note"><button type="button" class="linklike" id="suBack">← Back to sign-in</button></div>
+    </div>
+
+    <div id="gateAdminMode" style="display:none">
+      <p class="gate-sub">The admin space controls updates and edits across every catalog.</p>
+      <div class="gate-field">
+        <input id="gatePass" type="password" placeholder="Admin access phrase" autocomplete="off" autocapitalize="off" spellcheck="false"/>
+        <button type="button" id="gateEye" class="gate-eye">show</button>
+      </div>
+      <div class="gate-err" id="gateErr" aria-live="polite"></div>
+      <button type="button" id="gateGo" class="gate-btn">Enter <span>→</span></button>
+      <div class="gate-note">Access limited to those authorized by Unsurfaced™. <button type="button" class="linklike" id="gateUserToggle">← Catalog sign-in</button></div>
+    </div>
   </div>
 </div>
 
@@ -317,6 +382,43 @@ body.admin #public{display:none}
 <div class="ticker"><div class="ticker-track" id="ticker"></div></div>
 <main id="view"></main>
 <footer class="foot"><div class="wrap">Unsurfaced™ Rights Platform · A work is not a recording — public metadata is enrichment, not truth. · <button type="button" class="linklike" id="signOutBtn">Sign out</button></div></footer>
+
+<!-- SHARE CATALOG MODAL -->
+<div class="modal" id="shareModal"><div class="modal-box">
+  <button class="modal-x" id="shareX">×</button>
+  <div class="byl">Public showcase</div>
+  <h2 id="shareTitle">Share this catalog</h2>
+  <p class="muted" style="font-size:13px;line-height:1.6;margin:0 0 16px">A read-only showcase for publishers and investors: catalog position, works, and controlled share — <b style="color:var(--ink)">never</b> individual splits, IPIs, notes, or disputes.</p>
+  <div id="shareOff">
+    <button class="btn red" id="shareEnable" style="width:100%">Create public link →</button>
+  </div>
+  <div id="shareOn" style="display:none">
+    <div class="field"><label>Public link</label>
+      <div style="display:flex;gap:8px"><input id="shareUrl" class="mono" readonly style="flex:1;font-size:11.5px"/><button class="btn sm" id="shareCopy">Copy</button></div></div>
+    <label class="check" style="display:flex;margin:6px 0 14px"><input type="checkbox" id="shareWriters"/> Include writer names (never splits or IPIs)</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn sm" id="shareOpen">Preview</button>
+      <button class="btn sm" id="shareFile">Download showcase file</button>
+      <button class="btn sm" id="shareRegen">Regenerate link</button>
+      <button class="btn sm" id="shareDisable" style="border-color:var(--red);color:var(--red)">Disable</button>
+    </div>
+    <div class="muted" style="font-size:11px;margin-top:14px;border-top:1px solid var(--line);padding-top:12px">The link resolves on this deployment. To hand a copy to anyone anywhere, use <b style="color:var(--ink)">Download showcase file</b> — a self-contained page. Regenerating invalidates the previous link.</div>
+  </div>
+</div></div>
+
+<!-- USER MODAL -->
+<div class="modal" id="userModal"><div class="modal-box">
+  <button class="modal-x" id="userX">×</button>
+  <div class="byl" id="userByl">New user</div>
+  <h2 id="userTitle">Add a user</h2>
+  <div class="field"><label>Full name *</label><input id="uName" autocomplete="off"/></div>
+  <div class="row2"><div class="field"><label>Handle</label><input id="uHandle" class="mono" placeholder="e.g. rgmg" autocomplete="off"/></div>
+    <div class="field"><label>Access phrase <span id="uPassNote" class="muted" style="text-transform:none;letter-spacing:0"></span></label><input id="uPass" placeholder="Phrase they'll sign in with" autocomplete="off"/></div></div>
+  <div class="field"><label>Catalogs</label><div id="uCats" class="ucats"></div></div>
+  <div class="field"><label>Profile photo</label><input type="file" id="uPhoto" accept="image/*"/></div>
+  <div class="toast err hide" id="userErr"></div>
+  <button class="btn red" id="userGo" style="width:100%">Create user →</button>
+</div></div>
 
 <!-- ADD CATALOG MODAL -->
 <div class="modal" id="addModal"><div class="modal-box">
@@ -412,15 +514,49 @@ function normPending(rows){const works=[],warnings=[];rows.forEach((row,i)=>{con
 
 /* ---------- platform store ---------- */
 const Platform={
-  catalogs:[], live:{on:false,supa:null,orgId:null},
-  load(){try{const s=JSON.parse(localStorage.getItem(LSKEY));if(s&&Array.isArray(s.catalogs)&&s.catalogs.length){this.catalogs=s.catalogs;ensureRgmg(this.catalogs);return;}}catch(e){}this.catalogs=JSON.parse(JSON.stringify(BUILTIN));this.save();},
-  save(){try{localStorage.setItem(LSKEY,JSON.stringify({catalogs:this.catalogs}));}catch(e){}},
+  catalogs:[], accounts:[], live:{on:false,supa:null,orgId:null},
+  load(){try{const s=JSON.parse(localStorage.getItem(LSKEY));if(s&&Array.isArray(s.catalogs)&&s.catalogs.length){this.catalogs=s.catalogs;this.accounts=Array.isArray(s.accounts)?s.accounts:[];ensureRgmg(this.catalogs);ensureAccounts(this);return;}}catch(e){}this.catalogs=JSON.parse(JSON.stringify(BUILTIN));this.accounts=[];ensureAccounts(this);this.save();},
+  save(){try{localStorage.setItem(LSKEY,JSON.stringify({catalogs:this.catalogs,accounts:this.accounts}));}catch(e){}},
   get(id){return this.catalogs.find(c=>c.id===id)||null;},
   add(name,owner){const id="cat"+Date.now().toString(36);this.catalogs.push({id,name,owner:owner||name,source:"demo",works:[]});this.save();return id;},
   remove(id){this.catalogs=this.catalogs.filter(c=>c.id!==id);this.save();},
   resetRgmg(){const r=this.get("rgmg");if(r){r.works=JSON.parse(JSON.stringify(RGMG_WORKS));this.save();}}
 };
 function ensureRgmg(list){if(!list.some(c=>c.id==="rgmg"))list.unshift(JSON.parse(JSON.stringify(BUILTIN[0])));}
+/* ---------- accounts & sessions ---------- */
+const RGMG_USER_HASH="8455bffed37ceb44e05c0b1ba06a542f4e9010285ab84fbc8287e61659e2d55a"; // "rgmg access"
+/* ---------- subscription model ---------- */
+const SUB_PRICE="$4.99", SUB_PERIOD_DAYS=30;
+function subOf(a){return (a&&a.sub)||{status:"none"};}
+function subActive(a){const s=subOf(a);if(s.status==="comp")return true;if(s.status==="active")return true;if(s.status==="canceled"&&s.renews&&new Date(s.renews)>new Date())return true;return false;}
+function startSub(a){a.sub={status:"active",since:new Date().toISOString(),renews:new Date(Date.now()+SUB_PERIOD_DAYS*86400000).toISOString()};Platform.save();}
+function cancelSub(a){if(a.sub&&a.sub.status==="active"){a.sub.status="canceled";Platform.save();}}
+function compSub(a,on){a.sub=on?{status:"comp",since:new Date().toISOString()}:{status:"none"};Platform.save();}
+function subPill(a){const s=subOf(a);if(s.status==="comp")return '<span class="pill gold">comp</span>';if(subActive(a))return '<span class="pill gold">active</span>';if(s.status==="canceled")return '<span class="pill amber">ends soon</span>';return '<span class="pill">no plan</span>';}
+function ensureAccounts(P){if(!P.accounts.some(a=>a.id==="u-rgmg"))P.accounts.unshift({id:"u-rgmg",name:"Rob Gueringer Music Group",handle:"rgmg",hash:RGMG_USER_HASH,plain:null,photo:null,catalogIds:["rgmg"],builtin:true,sub:{status:"comp",since:new Date().toISOString()}});}
+const SKEY="uns_session";
+function getSession(){try{const s=JSON.parse(sessionStorage.getItem(SKEY));if(s&&s.type)return s;}catch(e){}try{if(sessionStorage.getItem("uns_admin_ok")==="1")return {type:"admin"};}catch(e){}return null;}
+function setSession(s){try{sessionStorage.setItem(SKEY,JSON.stringify(s));}catch(e){}}
+function clearSession(){try{sessionStorage.removeItem(SKEY);sessionStorage.removeItem("uns_admin_ok");}catch(e){}}
+function isAdmin(){const s=getSession();return !!s&&s.type==="admin";}
+function curAccount(){const s=getSession();if(!s||s.type!=="user")return null;return Platform.accounts.find(a=>a.id===s.id)||null;}
+function visibleCatalogs(){if(isAdmin())return Platform.catalogs;const a=curAccount();if(!a)return [];return Platform.catalogs.filter(c=>(a.catalogIds||[]).includes(c.id));}
+function canSee(catId){return visibleCatalogs().some(c=>c.id===catId);}
+function initials(name){return (name||"?").split(/\s+/).map(x=>x[0]).filter(Boolean).slice(0,2).join("").toUpperCase();}
+function avatarHtml(a,size){size=size||36;return a&&a.photo?`<img class="avatar" style="width:${size}px;height:${size}px" src="${a.photo}" alt="${esc(a.name)}"/>`:`<span class="avatar avatar-txt" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.38)}px">${esc(initials(a&&a.name))}</span>`;}
+async function verifyPhrase(a,val){
+  val=(val||"").trim().toLowerCase();if(!val)return false;
+  if(a.hash&&window.crypto&&crypto.subtle){try{return (await sha256hex(val))===a.hash;}catch(e){}}
+  if(a.plain!=null)return val===a.plain;
+  if(a.hash&&a.id==="u-rgmg")return val==="rgmg access"; // non-secure-context fallback for the seeded profile
+  return false;
+}
+function setPhoto(accountId,dataUri){const a=Platform.accounts.find(x=>x.id===accountId);if(a){a.photo=dataUri;Platform.save();}}
+function readPhoto(file,cb){
+  try{const r=new FileReader();r.onload=()=>{const src=r.result;
+    try{const img=new Image();img.onload=()=>{try{const S=128,cv=document.createElement("canvas");cv.width=S;cv.height=S;const x=cv.getContext("2d");const m=Math.min(img.width,img.height);x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);cb(cv.toDataURL("image/jpeg",0.85));}catch(e){cb(src);}};img.onerror=()=>cb(src);img.src=src;}
+    catch(e){cb(src);}};r.onerror=()=>cb(null);r.readAsDataURL(file);}catch(e){cb(null);}
+}
 function catId(w,c){return w.id||(w.id=(c.id+"-w"+Math.random().toString(36).slice(2,8)));}
 
 /* ---------- render helpers ---------- */
@@ -431,29 +567,127 @@ function meter(ctl,total){const over=total>1.005,w=x=>Math.min(Math.max(x,0),1.5
 function metrics(ws){const miss=ws.filter(w=>w.pubTotal>0&&Math.abs(w.pubTotal-1)>.005).length;const conflict=ws.filter(w=>readiness(w,validate(w))==="conflict").length;return{total:ws.length,draft:ws.filter(w=>w.status==="draft").length,review:ws.filter(w=>w.status==="under_review").length,miss,conflict,pending:ws.filter(w=>w.status==="submitted").length,writers:new Set(ws.flatMap(w=>w.writers.map(x=>x.n))).size};}
 
 /* ---------- nav ---------- */
+/* ---------- public catalog showcase (deliberate, curated disclosure) ---------- */
+function genToken(){return Math.random().toString(36).slice(2,8)+Math.random().toString(36).slice(2,8);}
+function shareUrl(c){return location.origin+location.pathname+"#p/"+(c.share&&c.share.token||"");}
+function showcaseStats(c){
+  const ws=aw(c);const n=ws.length||1;
+  let reg=0,ready=0,ctl=0,ctlN=0,yrs=[];
+  ws.forEach(w=>{if((w.regs||[]).length)reg++;if(gateScore(w).ready)ready++;
+    if(w.pubTotal>0){ctl+=(w.controlledPub||0)/w.pubTotal;ctlN++;}
+    if(w.releaseDate){const y=+String(w.releaseDate).slice(0,4);if(y)yrs.push(y);}});
+  return {works:ws.length,writers:roster(c).length,regPct:Math.round(100*reg/n),ready,ctlPct:ctlN?Math.round(100*ctl/ctlN):0,span:yrs.length?Math.min(...yrs)+"–"+Math.max(...yrs):null};
+}
+function scMeter(ctl,total){const p=total>0?Math.min(100,Math.round(100*(ctl||0)/total)):0;return `<div class="meter"><div class="meter-bar"><div class="meter-ctl" style="width:${p}%"></div><div class="meter-tick" style="left:100%"></div></div><div class="meter-cap"><span class="s">${p}% controlled</span></div></div>`;}
+function findShared(token){return Platform.catalogs.find(c=>c.share&&c.share.enabled&&c.share.token===token)||null;}
+function viewShowcase(token){
+  const c=findShared(token);
+  if(!c)return `<div class="wrap section" style="max-width:560px;padding-top:70px;text-align:left">
+    <div class="eyebrow">Unsurfaced<i>™</i> Catalog Showcase</div>
+    <h1 style="font-family:var(--serif);font-weight:400;font-size:40px;margin:12px 0 0">Not available.</h1>
+    <p class="muted" style="font-size:14px;line-height:1.6;margin-top:14px">This showcase link is disabled, regenerated, or not published on this device. Ask the catalog owner for a current link — or a downloadable showcase file.</p></div>`;
+  const s=showcaseStats(c),inclW=!!(c.share&&c.share.includeWriters);
+  return `<section class="hero"><div class="wrap hero-in">
+      <div class="eyebrow">Catalog Showcase · Presented via Unsurfaced<i>™</i></div>
+      <h1>${esc(c.name)}</h1>
+      <p>${esc(c.owner||"")} · A read-only view of this catalog's position. Individual splits, identifiers, and internal workflow are never shown here.</p>
+    </div></section>
+    <div class="wrap section">
+      <div class="grid g4">
+        <div class="tile"><div class="k">Works</div><div class="v">${s.works}</div></div>
+        <div class="tile"><div class="k">Writers</div><div class="v">${s.writers}</div></div>
+        <div class="tile"><div class="k">Avg controlled share</div><div class="v">${s.ctlPct}%</div><div class="h">of publishing, across works</div></div>
+        <div class="tile"><div class="k">Registered</div><div class="v">${s.regPct}%</div><div class="h">with at least one society</div></div>
+      </div>
+      ${s.span?`<div class="muted" style="font-size:12px;margin:14px 0 0">Release span <span class="mono" style="color:var(--ink)">${s.span}</span> · ${s.ready} work${s.ready===1?"":"s"} fully registration-ready</div>`:""}
+      <div class="sec-head" style="margin-top:34px"><div><h2>Works</h2><div class="lead">The bar shows the controlled publishing position against each work's total.</div></div></div>
+      <div class="panel scrollx"><table><thead><tr><th>Title</th><th>Artist</th>${inclW?"<th>Writers</th>":""}<th>Year</th><th>Controlled position</th><th>Status</th></tr></thead><tbody>
+        ${aw(c).map(w=>`<tr><td class="t-title">${esc(w.title)}</td><td class="muted">${esc(w.artist||"—")}</td>${inclW?`<td class="muted" style="font-size:12px">${(w.writers||[]).map(x=>esc(x.pn||x.n)).join(", ")||"—"}</td>`:""}<td class="mono muted">${w.releaseDate?String(w.releaseDate).slice(0,4):(w.unreleased?"unrel.":"—")}</td><td>${scMeter(w.controlledPub,w.pubTotal)}</td><td>${statusPill(w.status)}</td></tr>`).join("")}
+      </tbody></table></div>
+      <div class="panel" style="margin-top:26px;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
+        <div><div style="font-family:var(--serif);font-size:20px">Administer your catalog with Unsurfaced™</div>
+        <div class="muted" style="font-size:12px;margin-top:6px">Split sheets, writer identity, readiness gates, registrations — ${SUB_PRICE}/month.</div></div>
+        <button class="btn red" id="scSignIn">Sign in / Create profile →</button>
+      </div>
+    </div>`;
+}
+function renderShowcaseNav(){
+  document.getElementById("navIn").innerHTML=`<div class="brand"><img class="brandmark" src="${LOGO}" alt="Unsurfaced™"/></div><nav class="nav-links"><span class="modepill"><span class="dot"></span>Showcase</span></nav>`;
+}
+function showcaseFileHtml(c){
+  const s=showcaseStats(c),inclW=!!(c.share&&c.share.includeWriters);
+  const rows=aw(c).map(w=>{const p=w.pubTotal>0?Math.min(100,Math.round(100*(w.controlledPub||0)/w.pubTotal)):0;
+    return `<tr><td class="t">${esc(w.title)}</td><td class="m">${esc(w.artist||"—")}</td>${inclW?`<td class="m s">${(w.writers||[]).map(x=>esc(x.pn||x.n)).join(", ")||"—"}</td>`:""}<td class="m mono">${w.releaseDate?String(w.releaseDate).slice(0,4):(w.unreleased?"unrel.":"—")}</td><td><div class="bar"><i style="width:${p}%"></i></div></td><td class="m s">${esc(STATUS_LABEL[w.status]||w.status)}</td></tr>`;}).join("");
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(c.name)} — Catalog Showcase</title><style>
+  body{background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;margin:0;padding:40px 28px}
+  .wrap{max-width:900px;margin:0 auto}.eb{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8a8a92}.eb i{color:#ff2e2e;font-style:normal}
+  h1{font-family:Georgia,serif;font-weight:400;font-size:46px;margin:10px 0 6px}.sub{color:#8a8a92;font-size:13px;max-width:560px;line-height:1.6}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:#232326;border:1px solid #232326;margin:26px 0}
+  .st{background:#000;padding:16px}.st .k{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8a8a92}.st .v{font-family:Georgia,serif;font-size:30px;margin-top:6px}
+  table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8a8a92;padding:9px 10px;border-bottom:1px solid #232326}
+  td{padding:10px;border-bottom:1px solid #17171a}.t{font-family:Georgia,serif;font-size:15px}.m{color:#8a8a92}.s{font-size:12px}.mono{font-family:monospace}
+  .bar{width:130px;height:6px;background:#1c1c1f;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:#ff2e2e}
+  .foot{margin-top:30px;border-top:1px solid #232326;padding-top:16px;font-size:11px;color:#6a6a72;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .red{color:#ff2e2e}</style></head><body><div class="wrap">
+  <div class="eb">Catalog Showcase · Presented via Unsurfaced<i>™</i></div>
+  <h1>${esc(c.name)}</h1>
+  <div class="sub">${esc(c.owner||"")} · Read-only catalog position${s.span?` · Release span ${s.span}`:""}. Individual splits, identifiers, and internal workflow are never included.</div>
+  <div class="stats"><div class="st"><div class="k">Works</div><div class="v">${s.works}</div></div><div class="st"><div class="k">Writers</div><div class="v">${s.writers}</div></div><div class="st"><div class="k">Avg controlled share</div><div class="v">${s.ctlPct}%</div></div><div class="st"><div class="k">Registered</div><div class="v">${s.regPct}%</div></div></div>
+  <table><thead><tr><th>Title</th><th>Artist</th>${inclW?"<th>Writers</th>":""}<th>Year</th><th>Controlled</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="foot"><span>Generated ${new Date().toISOString().slice(0,10)} · <span class="red">${esc(location.host+location.pathname.replace(/index\.html$/,"").replace(/\/$/,""))}</span></span><span>© Unsurfaced™ Rights Management</span></div>
+  </div></body></html>`;
+}
+function openShare(){
+  const c=CUR;if(!c)return;
+  const on=c.share&&c.share.enabled;
+  document.getElementById("shareTitle").textContent="Share "+c.name;
+  document.getElementById("shareOff").style.display=on?"none":"block";
+  document.getElementById("shareOn").style.display=on?"block":"none";
+  if(on){document.getElementById("shareUrl").value=shareUrl(c);document.getElementById("shareWriters").checked=!!c.share.includeWriters;}
+  openModal("shareModal");
+}
+function wireShare(){
+  const X=id=>document.getElementById(id);
+  X("shareX").onclick=()=>closeModal("shareModal");
+  X("shareEnable").onclick=()=>{CUR.share={token:genToken(),enabled:true,includeWriters:false,created:new Date().toISOString()};Platform.save();openShare();};
+  X("shareCopy").onclick=()=>{const i=X("shareUrl");i.select();try{document.execCommand("copy");X("shareCopy").textContent="Copied";setTimeout(()=>X("shareCopy").textContent="Copy",1200);}catch(e){}};
+  X("shareWriters").onchange=()=>{if(CUR&&CUR.share){CUR.share.includeWriters=X("shareWriters").checked;Platform.save();}};
+  X("shareOpen").onclick=()=>{closeModal("shareModal");navigate("#p/"+CUR.share.token);};
+  X("shareRegen").onclick=()=>{if(CUR&&CUR.share&&confirm("Regenerate? The previous link stops working.")){CUR.share.token=genToken();Platform.save();openShare();}};
+  X("shareDisable").onclick=()=>{if(CUR&&CUR.share&&confirm("Disable the public link?")){CUR.share.enabled=false;Platform.save();openShare();}};
+  X("shareFile").onclick=()=>{try{const html=showcaseFileHtml(CUR);const blob=new Blob([html],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(CUR.name||"catalog").replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"_")+"_Showcase.html";document.body.appendChild(a);a.click();a.remove();}catch(e){alert("Couldn't build the file: "+e.message);}};
+}
+
 function renderNav(){
-  const inCat=CUR;
+  const inCat=CUR,admin=isAdmin(),acct=curAccount();
+  const who=acct?`<a class="me-chip" data-go="#me" title="Your profile">${avatarHtml(acct,26)}<span>${esc(acct.name.split(" ")[0])}</span></a>`:(admin?`<span class="pill gold" style="align-self:center">Admin</span>`:"");
   const links=inCat?`
-    <a class="nav-back" data-go="#">← Catalogs</a>
+    <a class="nav-back" data-go="#">← ${acct?"Your catalogs":"Catalogs"}</a>
     <span class="catbadge">${esc(CUR.name)}</span>
     <a data-go="#c/${CUR.id}" data-route="dashboard">Dashboard</a>
     <a data-go="#c/${CUR.id}/works" data-route="works">Works</a>
+    <a data-go="#c/${CUR.id}/writers" data-route="writers">Writers</a>
     <a data-go="#c/${CUR.id}/new" data-route="new">New</a>
     <a data-go="#c/${CUR.id}/import" data-route="import">Import</a>
     <a data-go="#c/${CUR.id}/export" data-route="export">Export</a>
+    <a id="shareNav" style="cursor:pointer">Share</a>
+    ${who}
     <span class="modepill ${Platform.live.on?"live":""}" id="modepill"><span class="dot"></span>${Platform.live.on?"Live":"Demo"}</span>
-    <button class="btn sm" id="connectBtn">${Platform.live.on?"Connected":"Connect"}</button>`:`
+    ${admin?`<button class="btn sm" id="connectBtn">${Platform.live.on?"Connected":"Connect"}</button>`:""}`:`
+    ${who}
     <span class="modepill" id="modepill"><span class="dot"></span>Platform</span>`;
   document.getElementById("navIn").innerHTML=`<div class="brand"><img class="brandmark" src="${LOGO}" alt="Unsurfaced™"/></div><nav class="nav-links" id="nav">${links}</nav>`;
   const cb=document.getElementById("connectBtn");if(cb)cb.onclick=()=>openModal("connModal");
+  const sn=document.getElementById("shareNav");if(sn)sn.onclick=()=>openShare();
 }
 
 /* ---------- hub ---------- */
 function viewHub(){
-  const cards=Platform.catalogs.map(c=>{
+  const admin=isAdmin(),acct=curAccount();
+  const cards=visibleCatalogs().map(c=>{
     const m=metrics(aw(c));
     return `<a class="cat-card" data-go="#c/${c.id}">
-      <div class="cat-actions"><button data-edit="${c.id}">Rename</button>${!c.builtin?`<button data-del="${c.id}">Remove</button>`:""}</div>
+      ${admin?`<div class="cat-actions"><button data-edit="${c.id}">Rename</button>${!c.builtin?`<button data-del="${c.id}">Remove</button>`:""}</div>`:""}
       <div class="ctop"><div><h3>${esc(c.name)}</h3><div class="owner">${esc(c.owner||"")}</div></div>${c.source==="live"?'<span class="pill amber">live</span>':""}</div>
       <div class="cat-stats">
         <div class="s"><div class="n">${m.total}</div><div class="l">Works</div></div>
@@ -463,29 +697,103 @@ function viewHub(){
       </div>
       <div class="cat-enter">Enter catalog →</div>
     </a>`;}).join("");
+  const usersPanel=admin?`
+    <div class="section"><div class="panel"><div class="panel-h"><h3>Users &amp; access</h3><button class="btn sm" id="addUserBtn">+ Add user</button></div>
+      <div class="scrollx"><table><thead><tr><th></th><th>Profile</th><th>Handle</th><th>Plan</th><th>Catalogs</th><th></th></tr></thead><tbody>
+      ${Platform.accounts.map(a=>`<tr><td style="width:44px">${avatarHtml(a,32)}</td><td>${esc(a.name)}${a.builtin?' <span class="pill gold" style="margin-left:4px">seed</span>':""}</td><td class="mono muted">${esc(a.handle||"—")}</td><td>${subPill(a)}${a.adminReq?' <span class="pill red" style="margin-left:4px">admin req</span>':""}</td><td class="muted" style="font-size:12px">${(a.catalogIds||[]).map(id=>{const c=Platform.get(id);return c?esc(c.name):id;}).join(", ")||"—"}</td><td style="text-align:right"><button class="btn sm" data-ucomp="${a.id}">${subOf(a).status==="comp"?"Un-comp":"Comp"}</button> <button class="btn sm" data-uedit="${a.id}">Edit</button>${!a.builtin?` <button class="btn sm" data-udel="${a.id}" style="border-color:var(--red);color:var(--red)">Remove</button>`:""}</td></tr>`).join("")}
+      </tbody></table></div>
+      <div class="muted" style="font-size:12px;padding:12px 18px">Each profile signs into its own catalogs from the front gate. The seeded RGMG profile's starting phrase is <span class="mono">RGMG Access</span> — edit the profile to change it.</div>
+    </div></div>`:"";
   return `<section class="hero"><div class="wrap hero-in">
-      <div class="eyebrow">Unsurfaced<i>™</i> Rights Administration</div>
-      <h1>Schedule <em>A</em></h1>
-      <p>One front door to every catalog you administer — <b>works, writers, splits, recordings, and registrations</b>, each in its own auditable workspace. A work is not a recording.</p>
+      <div class="eyebrow">Unsurfaced<i>™</i> ${admin?"Rights Administration":"· "+esc(acct?acct.name:"")}</div>
+      <h1>${admin?"Schedule <em>A</em>":"Your <em>catalogs</em>"}</h1>
+      <p>${admin?"The admin space — every catalog, every profile, full control. <b>Works, writers, splits, recordings, registrations.</b>":"Everything you administer, in one place. <b>Works, writers, splits, recordings, and registrations.</b>"}</p>
     </div></section>
     <div class="wrap section">
-      <div class="sec-head"><div><h2>Catalogs</h2><div class="lead">Select a catalog to administer it, or add a new one. Everything inside a catalog is scoped to that catalog.</div></div></div>
-      <div class="cat-grid">${cards}<button class="cat-add" id="addCatBtn"><div class="plus">+</div><div style="margin-top:10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase">Add catalog</div></button></div>
+      <div class="sec-head"><div><h2>${admin?"Catalogs":"Catalogs"}</h2><div class="lead">${admin?"Select a catalog to administer it, or add a new one.":"Catalogs your profile is authorized to administer."}</div></div></div>
+      <div class="cat-grid">${cards}${admin?`<button class="cat-add" id="addCatBtn"><div class="plus">+</div><div style="margin-top:10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase">Add catalog</div></button>`:""}</div>
+      ${usersPanel}
     </div>`;
+}
+function viewPaywall(){
+  const a=curAccount();if(!a)return "";
+  const s=subOf(a);
+  return `<div class="wrap section" style="max-width:880px;padding-top:48px">
+    <div class="eyebrow">Unsurfaced<i>™</i> Rights Management</div>
+    <h1 style="font-family:var(--serif);font-weight:400;font-size:clamp(32px,5.4vw,48px);line-height:1;margin:12px 0 0 -0.03em">Two ways to run your <em style="color:var(--red);font-style:italic">catalog.</em></h1>
+    <p class="muted" style="font-size:14px;line-height:1.6;margin:14px 0 24px;max-width:620px">Manage it yourself with the platform — or have Unsurfaced fully administer it. Either way, your Schedule A stays living, shareable, and yours.</p>
+    <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px">
+      <div class="panel" style="padding:24px">
+        <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber)">Self-serve · software</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px"><span style="font-family:var(--serif);font-size:40px">${SUB_PRICE}</span><span class="muted" style="font-size:12px">/ month · cancel anytime</span></div>
+        <div style="border-top:1px solid var(--line);margin:16px 0 14px;padding-top:14px;font-size:12.5px;color:var(--mut);line-height:1.9">You keep <b style="color:var(--ink)">100%</b> — no commission, ever · Unlimited works &amp; catalogs · Countersigned split sheets · Writer identity &amp; readiness gates · Registration tracking · Public showcase &amp; Schedule A export</div>
+        <button class="btn red" id="paySub" style="width:100%;padding:13px">Start subscription →</button>
+        ${s.status==="canceled"?`<div class="muted" style="font-size:11.5px;margin-top:10px">Your previous plan ended${s.renews?" "+new Date(s.renews).toISOString().slice(0,10):""}. Restarting resumes access instantly.</div>`:""}
+      </div>
+      <div class="panel" style="padding:24px;border-color:var(--red)">
+        <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--red)">Full administration · service</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px"><span style="font-family:var(--serif);font-size:40px">10–15%</span><span class="muted" style="font-size:12px">of collections we administer</span></div>
+        <div style="border-top:1px solid var(--line);margin:16px 0 14px;padding-top:14px;font-size:12.5px;color:var(--mut);line-height:1.9">We register, deliver, and collect on your behalf · Society submissions run by Unsurfaced · Platform included · Scope, territory &amp; fee set in a signed agreement · Below every major administrator's rate</div>
+        ${a.adminReq?`<div class="pill gold" style="display:inline-block">Administration requested — we'll reach out</div>`:`<button class="btn" id="payAdmin" style="width:100%;padding:13px;border-color:var(--red);color:var(--red)">Request full administration →</button>`}
+      </div>
+    </div>
+    <div class="muted" style="font-size:11px;margin-top:16px;border-top:1px solid var(--line);padding-top:12px">Self-serve checkout is simulated in this preview (live billing runs on Stripe at launch). Administration begins with a conversation and a signed agreement — never automatically. The public <span style="color:var(--ink)">Metadata Explorer</span> stays free — <button type="button" class="linklike" id="payBack">back to search</button>.</div>
+  </div>`;
+}
+function bindPaywall(){
+  const b=document.getElementById("paySub");if(b)b.onclick=()=>{const a=curAccount();if(a){startSub(a);const vis=visibleCatalogs();navigate(vis.length===1?("#c/"+vis[0].id):"#");}};
+  const ad=document.getElementById("payAdmin");if(ad)ad.onclick=()=>{const a=curAccount();if(a){a.adminReq=new Date().toISOString();Platform.save();render();}};
+  const bk=document.getElementById("payBack");if(bk)bk.onclick=()=>enterPublic();
+}
+function viewMe(){
+  const a=curAccount();if(!a)return `<div class="wrap section"><p class="muted">No profile in session.</p></div>`;
+  return `<div class="wrap section" style="max-width:620px">
+    <div class="crumbs"><a data-go="#">← Your catalogs</a></div>
+    <div class="sec-head"><div><h2>Your profile</h2><div class="lead">This profile signs into ${(a.catalogIds||[]).length} catalog${(a.catalogIds||[]).length===1?"":"s"}.</div></div></div>
+    <div class="panel" style="padding:24px">
+      <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px">${avatarHtml(a,84)}<div><div style="font-family:var(--serif);font-size:24px">${esc(a.name)}</div><div class="muted mono" style="font-size:12px;margin-top:4px">@${esc(a.handle||"")}</div></div></div>
+      <div class="field"><label>Profile photo</label><input type="file" id="mePhoto" accept="image/*"/><div class="muted" style="font-size:11px;margin-top:6px">Stored in this browser. Square-cropped automatically.</div></div>
+      <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <div><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)">Subscription</div>
+            <div style="font-size:14px;margin-top:6px">${subOf(a).status==="comp"?"Complimentary access":subActive(a)?`${SUB_PRICE}/month${subOf(a).renews?` · ${subOf(a).status==="canceled"?"access until":"renews"} <span class="mono">${new Date(subOf(a).renews).toISOString().slice(0,10)}</span>`:""}`:"No active plan"}</div></div>
+          <div style="display:flex;gap:8px;align-items:center">${subPill(a)}
+            ${subOf(a).status==="active"?`<button class="btn sm" id="meCancel">Cancel</button>`:(subOf(a).status!=="comp"?`<button class="btn sm red" id="meSub" style="background:var(--red);border-color:var(--red);color:#fff">Subscribe — ${SUB_PRICE}/mo</button>`:"")}</div>
+        </div>
+      </div>
+      <div class="muted" style="font-size:12px;border-top:1px solid var(--line);padding-top:14px;margin-top:16px">Access phrases are managed by your administrator.</div>
+    </div></div>`;
+}
+function bindMe(){
+  const inp=document.getElementById("mePhoto");const a=curAccount();
+  if(inp&&a)inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;readPhoto(f,uri=>{if(uri){setPhoto(a.id,uri);render();}});};
+  const mc=document.getElementById("meCancel");if(mc&&a)mc.onclick=()=>{if(confirm("Cancel your subscription? Access continues until the end of the paid period.")){cancelSub(a);render();}};
+  const ms=document.getElementById("meSub");if(ms&&a)ms.onclick=()=>{startSub(a);render();};
 }
 
 /* ---------- catalog views ---------- */
 function viewDashboard(c){
-  const m=metrics(aw(c)),recent=aw(c).slice(0,6);
+  const m=metrics(aw(c)),recent=aw(c).slice(0,6),rk=atRisk(c);
+  const risk=[
+    {n:rk.unregistered,l:"Unregistered works",go:"works",tone:rk.unregistered?"red":""},
+    {n:rk.notFooting,l:"Splits don't foot",go:"works",tone:rk.notFooting?"amber":""},
+    {n:rk.unconfirmed,l:"Split sheets unconfirmed",go:"works",tone:rk.unconfirmed?"amber":""},
+    {n:rk.idGaps,l:"Writers missing PRO/IPI",go:"writers",tone:rk.idGaps?"amber":""},
+    {n:rk.holds+rk.disputes,l:"Open holds & disputes",go:"works",tone:(rk.holds+rk.disputes)?"red":""},
+    {n:rk.relays,l:"Deliveries pending",go:"works",tone:rk.relays?"amber":""}
+  ];
   return `<section class="hero"><div class="wrap hero-in">
       <div class="eyebrow">Unsurfaced<i>™</i> · ${esc(c.owner||c.name)}</div>
       <h1>${esc(c.name)}</h1>
       <p>A living Schedule A — works, writers, splits, recordings, and registrations for this catalog.</p>
     </div></section>
     <div class="wrap section">
+      <div class="panel" style="margin-bottom:22px"><div class="panel-h"><h3>Money at risk</h3><span class="pill ${rk.ready===rk.works&&rk.works?"gold":"amber"}">${rk.ready}/${rk.works} works fully ready</span></div>
+        <div class="risk-grid">${risk.map(x=>`<a class="risk" data-go="#c/${c.id}/${x.go}"><div class="n ${x.tone}">${x.n}</div><div class="l">${x.l}</div></a>`).join("")}</div>
+        <div style="padding:0 18px 14px" class="muted" style="font-size:12px"><span style="font-size:12px">Every count above is unclaimable or blocked money until resolved. Unregistered and unmatched work royalties accrue to the black box — and historical unmatched funds begin distributing by market share in 2027.</span></div></div>
       <div class="grid g4">
         <a class="tile" data-go="#c/${c.id}/works"><div class="k">Total works</div><div class="v">${m.total}</div></a>
-        <a class="tile" data-go="#c/${c.id}/works"><div class="k">Writers</div><div class="v">${m.writers}</div></a>
+        <a class="tile" data-go="#c/${c.id}/writers"><div class="k">Writers</div><div class="v">${m.writers}</div></a>
         <a class="tile" data-go="#c/${c.id}/works"><div class="k">Missing splits</div><div class="v amber">${m.miss}</div><div class="h">Don't total 100%</div></a>
         <a class="tile" data-go="#c/${c.id}/works"><div class="k">Pending submission</div><div class="v">${m.pending}</div></a>
         <a class="tile" data-go="#c/${c.id}/works"><div class="k">Under review</div><div class="v amber">${m.review}</div></a>
@@ -521,24 +829,70 @@ function viewWork(c,id){
   const w=c.works.find(x=>catId(x,c)===id);
   if(!w)return `<div class="wrap section"><p class="muted">Work not found. <a data-go="#c/${c.id}/works" style="color:var(--red)">Back to works</a></p></div>`;
   const f=validate(w),r=readiness(w,f);
-  const real=["Overview","Writers & Splits","Recordings","Registrations"],soon=["Publishers","Metadata","Asset Room","Notes","Audit","Exports"];
+  const gs=gates(w),sc=gateScore(w),confs=w.splitConfs||{};
+  const real=["Overview","Writers & Splits","Recordings","Registrations"],soon=["Publishers","Metadata","Asset Room","Audit","Exports"];
   return `<div class="wrap section">
     <div class="crumbs"><a data-go="#c/${c.id}/works">← Works</a></div>
-    <div class="det-head"><div><h1>${esc(w.title)}</h1><div class="sub">${esc(w.artist||"—")}${w.unreleased?" · Unreleased":""}${w.releaseDate?` · Released <span class="mono">${w.releaseDate}</span>`:""}</div></div><div style="display:flex;gap:8px;align-items:center">${statusPill(w.status)} ${readyPill(r)} <a class="btn sm" data-go="#c/${c.id}/edit/${id}">Edit</a></div></div>
+    <div class="det-head"><div><h1>${esc(w.title)}</h1><div class="sub">${esc(w.artist||"—")}${w.unreleased?" · Unreleased":""}${w.releaseDate?` · Released <span class="mono">${w.releaseDate}</span>`:""}</div></div><div style="display:flex;gap:8px;align-items:center">${statusPill(w.status)} <span class="pill ${sc.ready?"gold":(sc.pass>=4?"amber":"red")}">${sc.ready?"Ready to register":sc.pass+"/"+sc.total+" gates"}</span> <a class="btn sm" data-go="#c/${c.id}/edit/${id}">Edit</a></div></div>
     ${w.archived?`<div class="panel" style="padding:13px 18px;margin-bottom:16px;border-color:var(--red)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="color:var(--red);font-size:13px">This entry is archived and hidden from the catalog.</span><button class="btn sm" id="w-restore">Restore</button></div></div>`:""}
     <div class="tabs">${real.map((t,i)=>`<a class="${i===0?"on":""}" data-scroll="sec-${t.split(" ")[0].toLowerCase()}">${t}</a>`).join("")}${soon.map(t=>`<span class="soon" title="Coming soon">${t}</span>`).join("")}</div>
+    <div class="panel" style="padding:16px 18px;margin-bottom:18px"><div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:10px">Registration readiness — every gate must pass before this work can be pushed anywhere</div>
+      <div class="gate-grid">${gs.map(g=>`<div class="gate ${g.pass?"ok":"bad"}"><span class="gb">${g.pass?"✓":"✕"}</span><span class="gl">${g.label}</span><span class="gd">${esc(g.detail)}</span></div>`).join("")}</div></div>
     ${f.length?`<div class="panel" style="padding:16px 18px;margin-bottom:18px"><div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:10px">Validation</div><div class="flags">${f.map(x=>`<div class="flag ${x.l}"><span class="b">${x.l==="error"?"✕":"!"}</span><span>${esc(x.m)}</span></div>`).join("")}</div></div>`:""}
     <div class="grid g2">
-      <div class="panel" id="sec-writers"><div class="panel-h"><h3>Writers &amp; splits</h3></div><div class="scrollx"><table><thead><tr><th>Writer</th><th>IPI/CAE</th><th>PRO</th><th style="text-align:right">Pub</th><th style="text-align:right">Master</th></tr></thead>
-        <tbody>${w.writers.map(x=>`<tr><td>${esc(x.n)}${x.pn?` <span class="muted">"${esc(x.pn)}"</span>`:""}${x.ctl?` <span class="pill gold" style="margin-left:4px">controlled</span>`:""}</td><td class="mono muted">${x.ipi||"—"}</td><td class="muted">${esc(x.pro||"—")}</td><td class="mono tnum" style="text-align:right">${pct(x.pub)}</td><td class="mono tnum" style="text-align:right">${pct(x.mas)}</td></tr>`).join("")}</tbody>
-        <tfoot><tr><td colspan="3">Total</td><td class="mono tnum" style="text-align:right;color:${!near(w.pubTotal,1)&&w.pubTotal>0?'var(--amber)':'inherit'}">${pct(w.pubTotal)}</td><td class="mono tnum" style="text-align:right">${pct(w.masterTotal)}</td></tr></tfoot></table></div>
-        <div style="padding:16px 18px">${meter(w.controlledPub,w.pubTotal)}</div></div>
+      <div class="panel" id="sec-writers"><div class="panel-h"><h3>Split sheet</h3><span class="muted" style="font-size:11px">${splitConfirmed(w)?"Countersigned":"Each writer confirms their share"}</span></div><div class="scrollx"><table><thead><tr><th>Writer</th><th>IPI/CAE</th><th>PRO</th><th style="text-align:right">Pub</th><th style="text-align:right">Master</th><th style="text-align:right">Confirmation</th></tr></thead>
+        <tbody>${w.writers.map(x=>`<tr><td>${esc(x.n)}${x.pn?` <span class="muted">"${esc(x.pn)}"</span>`:""}${x.ctl?` <span class="pill gold" style="margin-left:4px">controlled</span>`:""}</td><td class="mono muted">${x.ipi||"—"}</td><td class="muted">${esc(x.pro||"—")}</td><td class="mono tnum" style="text-align:right">${pct(x.pub)}</td><td class="mono tnum" style="text-align:right">${pct(x.mas)}</td><td style="text-align:right">${confs[x.n]?`<span class="conf-ok">✓ ${new Date(confs[x.n]).toISOString().slice(0,10)}</span>`:`<button class="btn sm" data-confirm="${esc(x.n)}">Confirm</button>`}</td></tr>`).join("")}</tbody>
+        <tfoot><tr><td colspan="3">Total</td><td class="mono tnum" style="text-align:right;color:${!near(w.pubTotal,1)&&w.pubTotal>0?'var(--amber)':'inherit'}">${pct(w.pubTotal)}</td><td class="mono tnum" style="text-align:right">${pct(w.masterTotal)}</td><td style="text-align:right">${foots(w)?'<span class="conf-ok">foots ✓</span>':`<button class="btn sm" data-opendispute style="border-color:var(--red);color:var(--red)">Open dispute</button>`}</td></tr></tfoot></table></div>
+        <div style="padding:16px 18px">${meter(w.controlledPub,w.pubTotal)}<div class="muted" style="font-size:11px;margin-top:10px">Editing this work resets confirmations — a changed split must be re-confirmed by every writer.</div></div></div>
       <div style="display:flex;flex-direction:column;gap:14px">
+        ${wfPanel(c,w)}
         <div class="panel" id="sec-recordings"><div class="panel-h"><h3>Recording</h3></div><div style="padding:16px 18px;font-size:13px">${w.label||w.releaseDate?`<div>${esc(w.label||"Label —")}</div><div class="muted" style="margin-top:4px">Released ${w.releaseDate||"—"}</div>`:`<div class="muted">No recording recorded.</div>`}</div></div>
         <div class="panel" id="sec-registrations"><div class="panel-h"><h3>Registrations</h3></div><div style="padding:8px 18px 14px">${w.regs.length?w.regs.map(rg=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px"><span>${esc(rg.s)}</span><span class="muted">${rg.st.replace(/_/g," ")}</span></div>`).join(""):`<div class="muted" style="font-size:13px;padding:6px 0">None tracked.</div>`}</div></div>
       </div>
     </div>
   </div>`;
+}
+function viewWriters(c){
+  const rs=roster(c);const done=rs.filter(x=>idOK(x)).length;
+  return `<div class="wrap section">
+    <div class="sec-head"><div><h2>Writers</h2><div class="lead">Every writer across this catalog. A writer needs a <b>PRO affiliation</b> and an <b>IPI/CAE</b> before any registration can pay them — their writer's share can't be collected by anyone else.</div></div>
+      <span class="pill ${done===rs.length&&rs.length?"gold":"amber"}" style="align-self:center">${done}/${rs.length} fully identified</span></div>
+    <div class="panel scrollx"><table><thead><tr><th>Writer</th><th>Works</th><th>PRO/CMO</th><th>IPI/CAE</th><th>Identity</th><th></th></tr></thead><tbody>
+      ${rs.map((x,i)=>`<tr data-wr="${i}"><td>${esc(x.n)}${x.pn?` <span class="muted">"${esc(x.pn)}"</span>`:""}${x.ctl?' <span class="pill gold" style="margin-left:4px">controlled</span>':""}</td><td class="mono tnum muted">${x.works}</td>
+        <td class="wr-pro">${esc(x.pro||"—")}</td><td class="wr-ipi mono muted">${x.ipi||"—"}</td>
+        <td>${idOK(x)?'<span class="pill gold">complete</span>':'<span class="pill amber">incomplete</span>'}</td>
+        <td style="text-align:right"><button class="btn sm" data-wredit="${esc(x.n)}">Edit</button></td></tr>`).join("")}
+    </tbody></table></div>
+    <div class="muted" style="font-size:12px;margin-top:12px">Edits apply to every work this writer appears on. Writers without a PRO can enroll at ASCAP or BMI, then bring back their IPI.</div>
+  </div>`;
+}
+function bindWriters(c){
+  document.querySelectorAll("[data-wredit]").forEach(b=>b.onclick=()=>{
+    const name=b.dataset.wredit;const tr=b.closest("tr");
+    const cur=roster(c).find(x=>x.n===name)||{};
+    tr.querySelector(".wr-pro").innerHTML=`<input class="wr-in" id="wrPro" value="${esc(cur.pro||"")}" placeholder="ASCAP / BMI / PRS…"/>`;
+    tr.querySelector(".wr-ipi").innerHTML=`<input class="wr-in mono" id="wrIpi" value="${esc(cur.ipi||"")}" placeholder="IPI/CAE"/>`;
+    b.textContent="Save";b.onclick=()=>{
+      setParty(c,name,{pro:tr.querySelector("#wrPro").value.trim(),ipi:tr.querySelector("#wrIpi").value.trim()});
+      render();
+    };
+  });
+}
+function bindWork(c,id){
+  const w=c.works.find(x=>catId(x,c)===id);if(!w)return;
+  const rb=document.getElementById("w-restore");if(rb)rb.onclick=()=>{w.archived=false;Platform.save();renderTicker();render();};
+  document.querySelectorAll("[data-confirm]").forEach(b=>b.onclick=()=>{confirmSplit(c,w,b.dataset.confirm);render();});
+  const od=document.querySelector("[data-opendispute]");
+  if(od)od.onclick=()=>{addWf(c,w,"disputes",{note:"Splits total "+pct(w.pubTotal)+" — resolution needed",delta:pct(Math.abs(w.pubTotal-1))});render();};
+  document.querySelectorAll("[data-wfclose]").forEach(b=>b.onclick=()=>{const [k,i]=b.dataset.wfclose.split(":");closeWf(c,w,k,+i);render();});
+  const cv=document.getElementById("wfConvert");
+  if(cv)cv.onclick=()=>{const s=noteSuggestion(w);if(!s)return;
+    if(s.kind==="relays"&&s.dests){s.dests.forEach(d=>addWf(c,w,"relays",{dest:d,note:s.obj.note}));}
+    else addWf(c,w,s.kind,s.obj);
+    render();};
+  const ad=document.getElementById("wfAdd");
+  if(ad)ad.onclick=()=>{const kind=document.getElementById("wfKind").value;const note=document.getElementById("wfNote").value.trim();if(!note)return;
+    addWf(c,w,kind,kind==="relays"?{dest:note}:(kind==="holds"?{type:"other",note}:{note}));render();};
 }
 function viewNew(c){
   return `<div class="wrap section" style="max-width:720px">
@@ -586,6 +940,82 @@ function regRowHtml(r){r=r||{};return `<div class="rrow" data-rrow>
   <div class="row2"><div class="field"><label>Society / DSP</label><input data-f="s" value="${esc(r.s||"")}"/></div>
     <div class="field"><label>Status</label><select data-f="st">${REG_STATUSES.map(k=>`<option value="${k}" ${r.st===k?"selected":""}>${k.replace(/_/g," ")}</option>`).join("")}</select></div></div>
   <div style="display:flex;justify-content:flex-end"><button type="button" class="btn sm" data-rmreg>Remove</button></div></div>`;}
+/* ---------- session-to-schedule: gates, split sheets, identity, workflow objects ---------- */
+const TOL=0.0006;
+function foots(w){return w.writers&&w.writers.length>0&&w.pubTotal>0&&Math.abs(w.pubTotal-1)<=TOL;}
+function idOK(x){return !!(x&&x.ipi&&x.pro&&!/^\s*(none|n\/a|-)\s*$/i.test(x.pro));}
+function splitConfirmed(w){if(!w.writers||!w.writers.length)return false;const c=w.splitConfs||{};return w.writers.every(x=>c[x.n]);}
+function openItems(a){return (a||[]).filter(x=>x.status==="open"||x.status==="pending");}
+function gates(w){
+  const idMiss=(w.writers||[]).filter(x=>!idOK(x)).length;
+  return [
+    {k:"foot",label:"Splits foot to 100%",pass:foots(w),detail:w.pubTotal>0?pct(w.pubTotal):"no shares"},
+    {k:"identity",label:"Writers identified (PRO + IPI)",pass:(w.writers||[]).length>0&&idMiss===0,detail:idMiss?idMiss+" missing":"complete"},
+    {k:"confirmed",label:"Split sheet confirmed",pass:splitConfirmed(w),detail:splitConfirmed(w)?"all confirmed":(Object.keys(w.splitConfs||{}).length+"/"+((w.writers||[]).length)+" confirmed")},
+    {k:"holds",label:"No open holds",pass:openItems(w.holds).length===0,detail:openItems(w.holds).length?openItems(w.holds).length+" open":"clear"},
+    {k:"disputes",label:"No open disputes",pass:openItems(w.disputes).length===0,detail:openItems(w.disputes).length?openItems(w.disputes).length+" open":"clear"},
+    {k:"regs",label:"Registered somewhere",pass:(w.regs||[]).length>0,detail:(w.regs||[]).length?((w.regs||[]).length+" societies"):"none"}
+  ];
+}
+function gateScore(w){const g=gates(w);return {pass:g.filter(x=>x.pass).length,total:g.length,ready:g.every(x=>x.pass)};}
+function daysAgo(iso){if(!iso)return null;const d=Math.floor((Date.now()-new Date(iso).getTime())/86400000);return d<0?0:d;}
+function atRisk(c){
+  const ws=aw(c);const r={unregistered:0,notFooting:0,unconfirmed:0,idGaps:0,holds:0,disputes:0,relays:0,ready:0};
+  const names=new Set(),gapNames=new Set();
+  ws.forEach(w=>{
+    if(!(w.regs||[]).length)r.unregistered++;
+    if(!foots(w))r.notFooting++;
+    if(!splitConfirmed(w))r.unconfirmed++;
+    r.holds+=openItems(w.holds).length;r.disputes+=openItems(w.disputes).length;r.relays+=openItems(w.relays).length;
+    (w.writers||[]).forEach(x=>{names.add(x.n);if(!idOK(x))gapNames.add(x.n);});
+    if(gateScore(w).ready)r.ready++;
+  });
+  r.idGaps=gapNames.size;r.writers=names.size;r.works=ws.length;
+  return r;
+}
+function roster(c){
+  const map={};
+  aw(c).forEach(w=>(w.writers||[]).forEach(x=>{
+    const e=map[x.n]=map[x.n]||{n:x.n,pn:x.pn||null,works:0,ctl:false,pro:null,ipi:null};
+    e.works++;if(x.ctl)e.ctl=true;if(x.pro&&!e.pro)e.pro=x.pro;if(x.ipi&&!e.ipi)e.ipi=x.ipi;if(x.pn&&!e.pn)e.pn=x.pn;
+  }));
+  const p=c.parties||{};
+  Object.keys(map).forEach(n=>{if(p[n]){if(p[n].pro)map[n].pro=p[n].pro;if(p[n].ipi)map[n].ipi=p[n].ipi;}});
+  return Object.values(map).sort((a,b)=>b.works-a.works||a.n.localeCompare(b.n));
+}
+function setParty(c,name,vals){
+  c.parties=c.parties||{};c.parties[name]=Object.assign(c.parties[name]||{},vals);
+  c.works.forEach(w=>(w.writers||[]).forEach(x=>{if(x.n===name){if(vals.pro!==undefined)x.pro=vals.pro||null;if(vals.ipi!==undefined)x.ipi=vals.ipi||null;}}));
+  Platform.save();
+}
+function confirmSplit(c,w,name){w.splitConfs=w.splitConfs||{};w.splitConfs[name]=new Date().toISOString();Platform.save();}
+function addWf(c,w,kind,obj){w[kind]=w[kind]||[];w[kind].push(Object.assign({opened:new Date().toISOString(),status:kind==="relays"?"pending":"open"},obj));Platform.save();}
+function closeWf(c,w,kind,i){const it=(w[kind]||[])[i];if(it){it.status=kind==="relays"?"sent":(kind==="holds"?"cleared":"resolved");it.closed=new Date().toISOString();Platform.save();}}
+function noteSuggestion(w){
+  const n=(w.notes||"");if(!n)return null;
+  if(/sample/i.test(n)&&!openItems(w.holds).length)return {kind:"holds",label:"Convert note → clearance hold",obj:{type:"sample_clearance",note:n}};
+  if(/adds? up to|waiting on splits/i.test(n)&&!openItems(w.disputes).length)return {kind:"disputes",label:"Convert note → split dispute",obj:{note:n,delta:w.pubTotal>0?pct(Math.abs(w.pubTotal-1)):null}};
+  if(/deliver|sub-?pub|PRS|CMRRA|SACEM|MLC|ASCAP|BMI/i.test(n)&&!openItems(w.relays).length){
+    const dests=(n.match(/PRS|CMRRA|SACEM|MLC|ASCAP|BMI|sub-?publishers?|sub-?pubs?/gi)||["Societies"]).map(s=>/sub-?pub/i.test(s)?"Sub-publishers":s.toUpperCase());
+    return {kind:"relays",label:"Convert note → delivery tasks ("+[...new Set(dests)].length+")",dests:[...new Set(dests)],obj:{note:n}};
+  }
+  return null;
+}
+const WF_LABEL={holds:{one:"Hold",tone:"amber",closeWord:"Clear"},disputes:{one:"Dispute",tone:"red",closeWord:"Resolve"},relays:{one:"Delivery",tone:"gold",closeWord:"Mark sent"}};
+function wfPanel(c,w){
+  const sug=noteSuggestion(w);
+  const sec=(kind)=>{const L=WF_LABEL[kind];const items=w[kind]||[];
+    return items.map((it,i)=>{const open=it.status==="open"||it.status==="pending";const age=daysAgo(it.opened);
+      return `<div class="wf-row"><span class="pill ${open?L.tone:""}">${L.one}${open?"":" · closed"}</span><span class="wf-note">${esc(it.dest?it.dest+(it.note?" — ":""):"")}${it.type==="sample_clearance"?"Sample clearance — ":""}${esc(it.note||"")}${it.delta?` <span class="mono">(Δ ${esc(it.delta)})</span>`:""}</span><span class="wf-age">${open&&age!=null?age+"d":""}</span>${open?`<button class="btn sm" data-wfclose="${kind}:${i}">${L.closeWord}</button>`:""}</div>`;}).join("");};
+  const any=(w.holds||[]).length||(w.disputes||[]).length||(w.relays||[]).length;
+  return `<div class="panel" id="sec-workflow"><div class="panel-h"><h3>Holds, disputes &amp; deliveries</h3></div>
+    <div style="padding:12px 18px 16px">
+      ${any?sec("holds")+sec("disputes")+sec("relays"):`<div class="muted" style="font-size:13px;padding:4px 0 10px">Nothing open. Holds block registration; disputes track split disagreements; deliveries track society and sub-publisher updates.</div>`}
+      ${sug?`<div style="margin:6px 0 10px"><button class="btn sm" id="wfConvert" style="border-color:var(--amber);color:var(--amber)">${esc(sug.label)}</button></div>`:""}
+      <div class="wf-add"><select id="wfKind"><option value="holds">Hold</option><option value="disputes">Dispute</option><option value="relays">Delivery</option></select><input id="wfNote" placeholder="Note (or destination for a delivery)"/><button class="btn sm" id="wfAdd">Add</button></div>
+    </div></div>`;
+}
+
 function viewEditWork(c,id){
   const w=c.works.find(x=>catId(x,c)===id);
   if(!w)return `<div class="wrap section"><p class="muted">Work not found. <a data-go="#c/${c.id}/works" style="color:var(--red)">Back to works</a></p></div>`;
@@ -638,6 +1068,7 @@ function saveEditWork(c,id){
   w.unreleased=document.getElementById("e-unrel").checked;
   w.notes=document.getElementById("e-notes").value.trim()||null;
   w.writers=writers;w.regs=regs;
+  w.splitConfs={}; // material change: every writer must re-confirm the split sheet
   recompute(w);Platform.save();renderTicker();navigate(`#c/${c.id}/work/${id}`);
 }
 function openAddCatalog(editId){
@@ -714,6 +1145,8 @@ async function connect(url,key){
 async function loadLive(c){
   const sel="id,primary_title,artist,status,unreleased_flag,date_released,notes,writer_contributions(pub_share,master_share,controlled,writers(legal_name,professional_name,pro_cmo,ipi_cae)),registration_records(society,status),recordings(label,release_date)";
   const {data,error}=await Platform.live.supa.from("works").select(sel).is("archived_at",null);if(error)throw error;
+  if(!data||!data.length){c.liveEmpty=true;return;} // RLS or empty project: keep local data intact — never blank a catalog on connect
+  c.liveEmpty=false;
   c.works=(data||[]).map(w=>{const wr=(w.writer_contributions||[]).map(x=>({n:x.writers?.legal_name||"(unknown)",pn:x.writers?.professional_name||null,pub:x.pub_share!=null?+x.pub_share:null,mas:x.master_share!=null?+x.master_share:null,pro:x.writers?.pro_cmo||null,ipi:x.writers?.ipi_cae||null,ctl:!!x.controlled}));const rec=(w.recordings||[])[0]||{};const o={id:w.id,title:w.primary_title,artist:w.artist,status:w.status,unreleased:w.unreleased_flag,label:rec.label||null,releaseDate:rec.release_date||w.date_released||null,notes:w.notes,writers:wr,regs:(w.registration_records||[]).map(r=>({s:r.society,st:r.status,d:null}))};return recompute(o);});
   c.source="live";
 }
@@ -728,14 +1161,26 @@ function _render(){
   const h=(location.hash||"#").slice(1);const v=document.getElementById("view");
   if(h.startsWith("sec-"))return; // in-page section anchor — let the browser scroll, don't reroute
   const parts=h.split("/");
+  if(parts[0]==="p"){ // public showcase: reachable by anyone, any session state
+    document.body.className="admin";hideGate();CUR=null;renderShowcaseNav();
+    v.innerHTML=viewShowcase(parts[1]||"");
+    const si=document.getElementById("scSignIn");if(si)si.onclick=()=>showGate();
+    const tk=document.getElementById("ticker");if(tk)tk.innerHTML="";
+    window.scrollTo(0,0);return;
+  }
+  if(h==="me"){CUR=null;renderNav();v.innerHTML=viewMe();bindMe();renderTicker();window.scrollTo(0,0);return;}
+  const acct=curAccount();
+  if(acct&&!subActive(acct)){CUR=null;renderNav();v.innerHTML=viewPaywall();bindPaywall();renderTicker();window.scrollTo(0,0);return;}
   if(!h||h==="hub"){CUR=null;renderNav();v.innerHTML=viewHub();bindHub();renderTicker();window.scrollTo(0,0);return;}
   if(parts[0]==="c"){
     const c=Platform.get(parts[1]);
-    if(!c){location.hash="#";return;}
+    if(!c){navigate("#");return;}
+    if(!canSee(c.id)){navigate("#");return;} // scoped: users only reach their own catalogs
     CUR=c;renderNav();setMode();
     const sub=parts[2]||"dashboard";
     if(sub==="works"){v.innerHTML=viewWorks(c);setActive("works");const wb=document.getElementById("worksBody");if(wb){wb.innerHTML=worksRows(c,"");const q=document.getElementById("q");if(q)q.addEventListener("input",e=>wb.innerHTML=worksRows(c,e.target.value));}const tg=document.getElementById("arcToggle");if(tg)tg.onclick=()=>{showArchived=!showArchived;render();};}
-    else if(sub==="work"){v.innerHTML=viewWork(c,parts[3]);setActive("works");const rb=document.getElementById("w-restore");if(rb)rb.onclick=()=>{const ww=c.works.find(x=>catId(x,c)===parts[3]);if(ww){ww.archived=false;Platform.save();renderTicker();render();}};}
+    else if(sub==="work"){v.innerHTML=viewWork(c,parts[3]);setActive("works");bindWork(c,parts[3]);}
+    else if(sub==="writers"){v.innerHTML=viewWriters(c);setActive("writers");bindWriters(c);}
     else if(sub==="edit"){v.innerHTML=viewEditWork(c,parts[3]);setActive("works");bindEditWork(c,parts[3]);}
     else if(sub==="new"){v.innerHTML=viewNew(c);setActive("new");document.getElementById("newSave").onclick=saveNewWork;}
     else if(sub==="import"){v.innerHTML=viewImportPage();setActive("import");bindImport();}
@@ -750,10 +1195,47 @@ function viewImportPage(){return `<div class="wrap section"><div class="crumbs">
   <div class="drop" id="drop"><h3>Drop your Schedule A here</h3><div class="muted" style="font-size:13px">Two-sheet RGMG workbooks (Submitted + Pending) are detected automatically.</div><div class="file-in"><input type="file" id="file" accept=".xlsx,.csv"/></div><div id="impToast"></div></div>
   <div id="impPreview" style="margin-top:20px"></div></div>`;}
 function bindImport(){const fi=document.getElementById("file");fi.addEventListener("change",e=>{if(e.target.files[0])handleFile(e.target.files[0]);});const d=document.getElementById("drop");["dragover","dragenter"].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.add("warm");}));["dragleave","drop"].forEach(ev=>d.addEventListener(ev,e=>{e.preventDefault();d.classList.remove("warm");}));d.addEventListener("drop",e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});}
+let editingUserId=null,pendingPhoto=null;
+function openUserModal(editId){
+  editingUserId=editId||null;pendingPhoto=null;
+  const a=editId?Platform.accounts.find(x=>x.id===editId):null;
+  document.getElementById("userByl").textContent=a?"Edit user":"New user";
+  document.getElementById("userTitle").textContent=a?a.name:"Add a user";
+  document.getElementById("uName").value=a?a.name:"";
+  document.getElementById("uHandle").value=a&&a.handle?a.handle:"";
+  document.getElementById("uPass").value="";
+  document.getElementById("uPassNote").textContent=a?"(leave blank to keep current)":"";
+  document.getElementById("uCats").innerHTML=Platform.catalogs.map(c=>`<label class="check" style="display:flex;margin:4px 0"><input type="checkbox" value="${c.id}" ${a&&(a.catalogIds||[]).includes(c.id)?"checked":""}/> ${esc(c.name)}</label>`).join("");
+  document.getElementById("uPhoto").value="";
+  document.getElementById("userErr").classList.add("hide");
+  document.getElementById("userGo").textContent=a?"Save changes":"Create user →";
+  openModal("userModal");
+}
+async function saveUser(){
+  const err=document.getElementById("userErr");err.classList.add("hide");
+  const name=document.getElementById("uName").value.trim();
+  if(!name){err.textContent="Name is required.";err.classList.remove("hide");return;}
+  const handle=document.getElementById("uHandle").value.trim().toLowerCase()||null;
+  const phrase=document.getElementById("uPass").value.trim();
+  const cats=[...document.querySelectorAll("#uCats input:checked")].map(x=>x.value);
+  let a=editingUserId?Platform.accounts.find(x=>x.id===editingUserId):null;
+  if(!a&&!phrase){err.textContent="An access phrase is required for a new user.";err.classList.remove("hide");return;}
+  if(!a){a={id:"u-"+Math.random().toString(36).slice(2,9),name,handle,hash:null,plain:null,photo:null,catalogIds:cats};Platform.accounts.push(a);}
+  else{a.name=name;a.handle=handle;a.catalogIds=cats;}
+  if(phrase){const norm=phrase.toLowerCase();
+    if(window.crypto&&crypto.subtle){try{a.hash=await sha256hex(norm);a.plain=null;}catch(e){a.hash=null;a.plain=norm;}}
+    else{a.hash=null;a.plain=norm;}}
+  if(pendingPhoto)a.photo=pendingPhoto;
+  Platform.save();closeModal("userModal");editingUserId=null;pendingPhoto=null;render();
+}
 function bindHub(){
   const add=document.getElementById("addCatBtn");if(add)add.onclick=()=>openAddCatalog(null);
   document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();openAddCatalog(b.dataset.edit);});
-  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const id=b.dataset.del;if(confirm('Remove catalog "'+(Platform.get(id)?.name||"")+'"? This deletes it from this browser.')){Platform.remove(id);render();}});
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const id=b.dataset.del;if(confirm('Remove catalog "'+(Platform.get(id)?.name||"")+'"? This deletes it from this browser.')){Platform.remove(id);Platform.accounts.forEach(a=>{a.catalogIds=(a.catalogIds||[]).filter(x=>x!==id);});Platform.save();render();}});
+  const au=document.getElementById("addUserBtn");if(au)au.onclick=()=>openUserModal(null);
+  document.querySelectorAll("[data-uedit]").forEach(b=>b.onclick=()=>openUserModal(b.dataset.uedit));
+  document.querySelectorAll("[data-ucomp]").forEach(b=>b.onclick=()=>{const a=Platform.accounts.find(x=>x.id===b.dataset.ucomp);if(a){compSub(a,subOf(a).status!=="comp");render();}});
+  document.querySelectorAll("[data-udel]").forEach(b=>b.onclick=()=>{const a=Platform.accounts.find(x=>x.id===b.dataset.udel);if(a&&confirm('Remove profile "'+a.name+'"? They will no longer be able to sign in.')){Platform.accounts=Platform.accounts.filter(x=>x.id!==a.id);Platform.save();render();}});
 }
 function renderTicker(){
   let titles=[];
@@ -781,6 +1263,9 @@ function bindGlobal(){
   });
   document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const a=e.target.closest("[data-go]");if(a){e.preventDefault();navigate(a.getAttribute("data-go"));}});
   document.getElementById("addX").onclick=()=>closeModal("addModal");
+  document.getElementById("userX").onclick=()=>{closeModal("userModal");editingUserId=null;pendingPhoto=null;};
+  document.getElementById("userGo").onclick=()=>saveUser();
+  document.getElementById("uPhoto").onchange=()=>{const f=document.getElementById("uPhoto").files[0];if(f)readPhoto(f,uri=>{pendingPhoto=uri;});};
   document.getElementById("addGo").onclick=()=>{const n=document.getElementById("newCatName").value.trim(),o=document.getElementById("newCatOwner").value.trim();const err=document.getElementById("addErr");if(!n){err.textContent="Catalog name is required.";err.classList.remove("hide");return;}if(editingCatId){const cc=Platform.get(editingCatId);if(cc){cc.name=n;cc.owner=o||n;Platform.save();}editingCatId=null;closeModal("addModal");render();}else{const id=Platform.add(n,o);closeModal("addModal");document.getElementById("newCatName").value="";document.getElementById("newCatOwner").value="";navigate(`#c/${id}`);}};
   document.getElementById("connX").onclick=()=>closeModal("connModal");
   document.getElementById("connOff").onclick=()=>{Platform.live.on=false;Platform.live.supa=null;sessionStorage.removeItem("rgmg_supa");if(CUR&&CUR.source==="live"){const r=Platform.get(CUR.id);}closeModal("connModal");render();};
@@ -797,9 +1282,69 @@ async function gateMatch(val){
   if(window.crypto&&crypto.subtle){try{return (await sha256hex(val))===GATE_HASH;}catch(e){}}
   return val==="unsurfaced admin"; // fallback for non-secure contexts (e.g. file://)
 }
-function showGate(){const g=document.getElementById("gate");g.classList.add("show");setTimeout(()=>{try{document.getElementById("gatePass").focus();}catch(e){}},90);}
+function showGate(){renderGateProfiles();gateMode("user");const g=document.getElementById("gate");g.classList.add("show");}
 function hideGate(){const g=document.getElementById("gate");if(g)g.classList.remove("show");}
-function unlockGate(){try{sessionStorage.setItem("uns_admin_ok","1");}catch(e){}const p=document.getElementById("gatePass");if(p)p.value="";enterAdmin();}
+function gateMode(m){
+  document.getElementById("gateUserMode").style.display=m==="user"?"block":"none";
+  document.getElementById("gateAdminMode").style.display=m==="admin"?"block":"none";
+  const sm=document.getElementById("gateSignupMode");if(sm)sm.style.display=m==="signup"?"block":"none";
+  if(m==="admin")setTimeout(()=>{try{document.getElementById("gatePass").focus();}catch(e){}},80);
+  if(m==="signup")setTimeout(()=>{try{document.getElementById("suName").focus();}catch(e){}},80);
+}
+let signupPhoto=null;
+async function trySignup(){
+  const err=document.getElementById("suErr");err.classList.remove("show");
+  const name=document.getElementById("suName").value.trim();
+  const handle=document.getElementById("suHandle").value.trim().toLowerCase().replace(/\s+/g,"");
+  const p1=document.getElementById("suPass").value.trim(),p2=document.getElementById("suPass2").value.trim();
+  const fail=t=>{err.textContent=t;err.classList.add("show");};
+  if(!name)return fail("Your name is required.");
+  if(!handle)return fail("A handle is required — it identifies your profile.");
+  if(Platform.accounts.some(a=>(a.handle||"").toLowerCase()===handle))return fail("That handle is taken — choose another.");
+  if(Platform.accounts.some(a=>a.name.trim().toLowerCase()===name.toLowerCase()))return fail("A profile with that name already exists. Sign in instead, or vary the name.");
+  if(p1.length<8)return fail("Access phrase must be at least 8 characters.");
+  if(p1!==p2)return fail("The phrases don't match.");
+  const catName=document.getElementById("suCat").value.trim()||name+" — Catalog";
+  const catId=Platform.add(catName,name);
+  const a={id:"u-"+Math.random().toString(36).slice(2,9),name,handle,hash:null,plain:null,photo:signupPhoto||null,catalogIds:[catId],builtin:false,created:new Date().toISOString()};
+  const norm=p1.toLowerCase();
+  if(window.crypto&&crypto.subtle){try{a.hash=await sha256hex(norm);}catch(e){a.plain=norm;}}else{a.plain=norm;}
+  Platform.accounts.push(a);Platform.save();
+  signupPhoto=null;["suName","suHandle","suPass","suPass2","suCat"].forEach(id=>{document.getElementById(id).value="";});
+  enterUser(a.id);
+}
+function wireSignup(){
+  const go=document.getElementById("suGo"),bk=document.getElementById("suBack"),tg=document.getElementById("gateSignupToggle"),ph=document.getElementById("suPhoto");
+  if(tg)tg.onclick=()=>gateMode("signup");
+  if(bk)bk.onclick=()=>{gateMode("user");renderGateProfiles();};
+  if(go)go.onclick=trySignup;
+  if(ph)ph.onchange=()=>{const f=ph.files&&ph.files[0];if(f)readPhoto(f,uri=>{signupPhoto=uri;});};
+  ["suName","suHandle","suPass","suPass2","suCat"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();trySignup();}});});
+}
+let gateSel=null;
+function renderGateProfiles(){
+  const box=document.getElementById("gateProfiles");if(!box)return;
+  box.innerHTML=Platform.accounts.map(a=>`<button type="button" class="gp-card" data-profile="${a.id}">${avatarHtml(a,52)}<span class="gp-name">${esc(a.name)}</span><span class="gp-cats">${(a.catalogIds||[]).length} catalog${(a.catalogIds||[]).length===1?"":"s"}</span></button>`).join("")||`<div class="muted" style="font-size:13px">No profiles provisioned yet — use Admin access to create them.</div>`;
+  box.querySelectorAll("[data-profile]").forEach(b=>b.onclick=()=>selectProfile(b.dataset.profile));
+  document.getElementById("gateUserForm").style.display="none";box.style.display="grid";
+}
+function selectProfile(id){
+  gateSel=Platform.accounts.find(a=>a.id===id);if(!gateSel)return;
+  document.getElementById("gateProfiles").style.display="none";
+  const f=document.getElementById("gateUserForm");f.style.display="block";
+  document.getElementById("guAvatar").innerHTML=avatarHtml(gateSel,44);
+  document.getElementById("guName").textContent=gateSel.name;
+  document.getElementById("guErr").classList.remove("show");
+  const p=document.getElementById("guPass");p.value="";setTimeout(()=>{try{p.focus();}catch(e){}},60);
+}
+async function tryUserGate(){
+  if(!gateSel)return;
+  const inp=document.getElementById("guPass"),err=document.getElementById("guErr"),btn=document.getElementById("guGo");
+  if(!(inp.value||"").trim()){err.textContent="Enter your access phrase.";err.classList.add("show");return;}
+  if(await verifyPhrase(gateSel,inp.value)){err.classList.remove("show");inp.value="";enterUser(gateSel.id);}
+  else{err.textContent="That phrase isn't recognized for this profile.";err.classList.add("show");btn.classList.add("bad");setTimeout(()=>btn.classList.remove("bad"),420);inp.select();}
+}
+function unlockGate(){setSession({type:"admin"});const p=document.getElementById("gatePass");if(p)p.value="";enterAdmin();}
 async function tryGate(){
   const inp=document.getElementById("gatePass"),err=document.getElementById("gateErr"),btn=document.getElementById("gateGo");
   const val=(inp.value||"").trim().toLowerCase();
@@ -814,11 +1359,24 @@ function wireGate(){
   if(inp){inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();tryGate();}});inp.addEventListener("input",()=>document.getElementById("gateErr").classList.remove("show"));}
   if(eye)eye.onclick=()=>{const showing=inp.type==="text";inp.type=showing?"password":"text";eye.textContent=showing?"show":"hide";inp.focus();};
   if(cl)cl.onclick=hideGate;
+  const gp=document.getElementById("guPass"),ge=document.getElementById("guEye"),gg=document.getElementById("guGo"),gb=document.getElementById("guBack");
+  if(gg)gg.onclick=tryUserGate;
+  if(gp){gp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();tryUserGate();}});gp.addEventListener("input",()=>document.getElementById("guErr").classList.remove("show"));}
+  if(ge)ge.onclick=()=>{const s=gp.type==="text";gp.type=s?"password":"text";ge.textContent=s?"show":"hide";gp.focus();};
+  if(gb)gb.onclick=()=>renderGateProfiles();
+  const at=document.getElementById("gateAdminToggle"),ut=document.getElementById("gateUserToggle");
+  if(at)at.onclick=()=>gateMode("admin");
+  if(ut)ut.onclick=()=>{gateMode("user");renderGateProfiles();};
 }
 
-/* ---------- two journeys: public explorer vs premium admin ---------- */
-function enterAdmin(){document.body.className="admin";hideGate();render();}
-function enterPublic(){document.body.className="public";hideGate();}
+/* ---------- journeys: public explorer · user catalog space · admin space ---------- */
+function enterAdmin(){setSession({type:"admin"});document.body.className="admin";hideGate();render();}
+function enterUser(accountId){
+  setSession({type:"user",id:accountId});document.body.className="admin";hideGate();
+  const vis=visibleCatalogs();
+  if(vis.length===1){navigate("#c/"+vis[0].id);}else{navigate("#");}
+}
+function enterPublic(){clearSession();CUR=null;document.body.className="public";hideGate();}
 
 /* ---------- public metadata explorer — WORLD data via MusicBrainz (never the private catalog) ---------- */
 const MB="https://musicbrainz.org/ws/2/";
@@ -921,19 +1479,19 @@ function wirePublic(){
   document.querySelectorAll("#signInBtn,#signInBtn2").forEach(b=>b.onclick=showGate);
   const res=document.getElementById("pubResults");
   if(res)res.addEventListener("click",e=>{const b=e.target.closest("[data-claims]");if(b)loadClaims(b.dataset.claims,b.dataset.title);});
-  const so=document.getElementById("signOutBtn");if(so)so.onclick=()=>{try{sessionStorage.removeItem("uns_admin_ok");}catch(e){}enterPublic();};
+  const so=document.getElementById("signOutBtn");if(so)so.onclick=()=>{enterPublic();};
   updatePubHint();
 }
 async function boot(){
-  wireGate();wirePublic();
-  Platform.load();bindGlobal();
+  Platform.load();wireGate();wireSignup();wirePublic();wireShare();bindGlobal();
   const saved=sessionStorage.getItem("rgmg_supa");
   if(saved){try{const {url,key}=JSON.parse(saved);await connect(url,key);}catch(e){Platform.live.on=false;}}
-  let unlocked=false;try{unlocked=sessionStorage.getItem("uns_admin_ok")==="1";}catch(e){}
-  if(unlocked)enterAdmin();else enterPublic();
+  const s=getSession();
+  if(s&&s.type==="admin"){document.body.className="admin";hideGate();render();}
+  else if(s&&s.type==="user"&&curAccount()){document.body.className="admin";hideGate();render();}
+  else{document.body.className="public";hideGate();}
 }
 boot();
 </script>
 </body>
 </html>
-<!-- pipeline test -->
